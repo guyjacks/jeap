@@ -1,0 +1,140 @@
+import rosie.rosie as rosie
+class Parser(object):
+    def __init__(self, event_enum, token_enum, interpreter, spaces_per_indent = 4):
+        self.events = event_enum
+        self.tokens = token_enum
+        self.interpreter = interpreter
+
+        self.fsm = self.__create_states()
+        
+        self.pos = 0
+        self.buffer = ""
+        self.token_ready = False
+        self.token_type = ""
+
+        self.spaces_per_indent = spaces_per_indent
+        self.indent_mode = False
+        self.indent_spaces_count = 0
+    
+    def parse(self, input):
+        for char in input:
+            # event is the int representation
+            event = self.interpreter.interpret(char)
+            # transition_event is the string representation
+            transition_event = self.events.get_reverse(event)
+
+            if self.indent_mode:
+                # yield indent tokens for each indent counted
+                if event == self.events.space:
+                    self.indent_spaces_count += 1
+                else:
+                    # no more spaces to count
+                    # ensure that spaces divide evently into indents
+                    mod = self.spaces_per_indent % self.indent_spaces_count
+                    if mod == 0:
+                        indents_count = self.indent_spaces_count / self.spaces_per_indent
+                        # exit indent mode and reset space count
+                        self.indent_mode = False
+                        self.indent_spaces_count = 0
+                        # the first space of an indent may be added to 
+                        # the buffer so reset the buffer
+                        self.buffer = ""
+
+                        # emit an indent token for each indent
+                        i = 0
+                        while i < indents_count:
+                            i += 1
+                            yield self.tokens.indent, ""
+
+                    else:
+                        # throw improper indent error
+                        pass
+                    # need to process the nonspace event
+                    self.buffer += char
+                    state = self.fsm.transition(transition_event)
+            else:  # not in indent mode
+                self.buffer += char
+                state = self.fsm.transition(transition_event)
+
+            # emit a token if a token has been parsed out
+            if self.token_ready:
+                self.token_ready = False
+                token_value = self.__clean(self.buffer)
+                self.buffer = ""
+                yield self.token_type, token_value
+            self.pos += 1
+
+        yield self.tokens.end_of_input, ""
+
+    # fsm will call this function when a space is encountered at the 
+    # beginning of a newline
+    def __enter_indent_mode(self, indent_spaces_counted, **kwargs):
+        self.indent_mode = True
+        self.indent_spaces_count = indent_spaces_counted
+
+    # fsm will call this function when certain states are reached
+    # the parse function checks for tokens during each loop
+    # if the parse function finds a token is ready then it yields 
+    # a token tuple (token type, token value)
+    def __tokenize(self, token_type, **kwargs):
+        self.token_type = token_type
+        self.token_ready = True
+
+    def __clean(self, token):
+        dirty_chars = '=\n'
+        last = token[-1]
+        if last in dirty_chars:
+            return token[:-1]
+        else:
+            return token
+
+    def __create_states(self):
+        # Shorten the event names to avoid typing quotes
+        text = 'text'
+        space = 'space'
+        newline = 'newline'
+        pair_separator = 'pair_separator'
+        comment_symbol = 'comment_symbol'
+        
+        # Alias callback methods to avoid typing out self.__method_name()
+        tokenize = self.__tokenize
+        enter_indent_mode = self.__enter_indent_mode
+
+        # Shorten tokens to avoid typing self.tokens.token
+        tok_indent = self.tokens.indent
+        tok_pair_key = self.tokens.pair_key
+        tok_literal = self.tokens.literal
+        tok_newline = self.tokens.newline
+
+        fsm = rosie.FiniteStateMachine('start_new_line')
+
+        fsm.start_new_line.on(newline).go('start_new_line')
+        fsm.start_new_line.on(comment_symbol).go('comment')
+        fsm.start_new_line.on(space).go('indents').do(enter_indent_mode, 1)
+        fsm.start_new_line.on(text).go('key_or_value')
+
+        fsm.key_or_value.on(text).go('key_or_value')
+        fsm.key_or_value.on(space).go('key_or_value')
+        fsm.key_or_value.on(pair_separator).go('key_found').do(tokenize, tok_pair_key)
+        fsm.key_or_value.on(newline).go('literal_complete').do(tokenize, tok_literal)
+
+        fsm.key_found.on(text).go('building_literal')
+        fsm.key_found.on(newline).go('start_new_line')
+        
+        fsm.building_literal.on(text).go('building_literal')
+        fsm.building_literal.on(newline).go('literal_complete').do(tokenize, tok_literal)
+
+        # may need to rename to literal_complete_newline since
+        # literals can be completed by other chars such as commas 
+        # in inline arrays.  In this case the state would be 
+        # literal_complete_comma
+        fsm.literal_complete.on(newline).go('start_new_line')
+        fsm.literal_complete.on(comment_symbol).go('comment')
+        fsm.literal_complete.on(space).go('indents').do(enter_indent_mode, 1)
+        fsm.literal_complete.on(text).go('key_or_value')
+
+        fsm.indents.on(newline).go('start_new_line')
+        fsm.indents.on(comment_symbol).go('comment')
+        fsm.indents.on(text).go('key_or_value')
+
+        return fsm

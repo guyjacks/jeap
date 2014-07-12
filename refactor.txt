@@ -1,0 +1,13 @@
+nodes.py
+- remove redundant code when adding nodes...
+  if parent.type == 'pair':
+    Do a,b,c
+  elif parent.type == 'blah':
+    Do a,b,c # we're doing a,b,c either way so simplify
+- pairs
+  - modify pairs so that keys are always the first child instead of storing in the key field (maybe do this!)
+- Node Classes
+  - maybe able to simplify these objects since initialize may not differ much.  The only difference is likely to be the render function.
+
+tests
+  - modify tests that create pairs and text nodes so that text node values are 'text' instead of 'value' to reduce confusion for future developers.  I'm currently creating a pair and text node like so... [pair_node = tree.create('pair', 'key') and text_node = tree.create('text', 'value')  I'm afraid developers will be assume a relationship between the pair and text nodes becomes of the 'key' and 'value' nomenclature.

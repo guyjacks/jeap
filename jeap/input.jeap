@@ -1,0 +1,16 @@
+people=
+    {% for person in people %}
+        first={{person.first}}
+        last={{person.last}}
+    {% end for %}
+    {% if person.friends%}
+        friends=
+            {% for friend in friends %}
+                first={{ friend.first }}
+                last={{ friend.last }}
+            {% end for %}
+    {% end if %}
+
+{% for word, definition in definitions %}
+    {{word}}={{definition}
+{% end for %}

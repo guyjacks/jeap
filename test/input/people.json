@@ -1,0 +1,13 @@
+people=
+    person=
+        name=guy
+        hobbies=
+            skating
+            longboarding
+            hiking
+    person=
+        name=nate
+        hobbies=
+            basketball
+            writing
+            reading

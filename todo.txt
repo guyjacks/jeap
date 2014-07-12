@@ -1,0 +1,54 @@
+Phase 1
+
+x implement Nodes.close_scope(...)
+- modify rosie
+  x pass start & end as kwargs to simplify callback signatures
+  x repackage rosie and install new version in virtualenv for jeap
+  - pass a list of events to on()
+  - raise exception for invalid transition with more information than
+    - KeyError: 'end_of_input'
+    - ideally it would be ...
+    - Transition 'end_of_input' does not exist for current state 'State Name'
+
+- modify parser
+  x remove callback start and end parameters
+  x rework indent parsing so indent tokens are emitted like ('indent', 3)
+  - optional - turn parser into iterable so compiler jumps loops over instead of calling parser.parse...  for token in parser:
+- modify compiler
+   - add root attribute to Nodes class
+   - remove callback start and end parameters
+   - rework handling of indents
+   - add nodes to the tree
+   - close tree nodes as necessary
+   - add array item when parent is currently an object
+   - add pair with same keys as existing pair
+- implement render
+- add sphinx docs
+
+Phase 2
+
+- implement
+  - variables
+  - expressions
+  - if-else
+  - loops
+  - filters
+  - macros
+  - blocks
+
+j = jeap(
+	path='path/to/templates/'
+        config,   # global
+	filters,  # global
+	macros,   # global
+	data      # global
+)
+
+j.render(
+	'tpl.jeap',
+	data,           # local
+	'layout.jeap',  # local
+	filters,
+	macros          # local
+        config		# local
+)

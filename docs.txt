@@ -1,0 +1,22 @@
+name=
+    first=guy
+    last=jacks
+
+obj
+- pair
+  - key
+    - Text
+      - name
+  - obj
+    - pair
+      - key
+        - text
+          - first
+      - text
+        - guy
+    - pair
+      - key
+        - text
+          - last
+      - text
+        - jacks

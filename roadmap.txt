@@ -1,0 +1,19 @@
+Render
+ - for humans
+ - condensed
+ - compressed or minified - special format that reduces the size of json docs by eliminating duplicate object keys.  http://stevehanov.ca/blog/index.php?id=104
+ - as python dictionary
+
+Make configurable
+ - use : in place = as pair separators for example
+ - set default parent container (array or object)
+
+Indents
+ - use tabs or spaces
+ - set tabspace equal to something other than 4 (4 is default)
+
+Command Line Interface
+
+Json to Jeap converter
+
+AST caching

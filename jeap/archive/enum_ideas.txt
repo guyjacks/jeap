@@ -1,0 +1,7 @@
+bijection - 2 way map
+https://pypi.python.org/pypi/bidict/0.1.1
+http://stackoverflow.com/questions/1456373/two-way-reverse-map
+# accepted answers shows how to encapsulate 2 dicts.
+# i think that dict and list will work for what I'm trying to do
+## use the dict for enum
+## use the list to lookup name by enumerated value because list is quicker than dict for this (I'm assuming)
