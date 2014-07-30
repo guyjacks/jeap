@@ -10,10 +10,6 @@ x implement Nodes.close_scope(...)
     - ideally it would be ...
     - Transition 'end_of_input' does not exist for current state 'State Name'
 
-- modify parser
-  x remove callback start and end parameters
-  x rework indent parsing so indent tokens are emitted like ('indent', 3)
-  - optional - turn parser into iterable so compiler jumps loops over instead of calling parser.parse...  for token in parser:
 - modify compiler
    - add root attribute to Nodes class
    - remove callback start and end parameters
