@@ -4,33 +4,32 @@ class NodeTree(object):
         self.scope = []
 
     def add(self, node):
-        node.on_add(self.__parent())
+        node.add()
 
-    # REFACTOR - change name to close_current_scope
-    def close_scope(self):
-        current_node_in_scope = self.__parent()
-        current_node_in_scope.on_exit_scope()
+    def close_scoped_node(self):
+        current_node_in_scope = self.get_scoped_node()
+        current_node_in_scope.exit_scope()
 
-        next_node_in_scope = self.__parent()
-        next_node_in_scope.on_child_exits_scope(current_node_in_scope)
+        next_node_in_scope = self.get_scoped_node()
+        next_node_in_scope.child_exits_scope(current_node_in_scope)
 
     ################################
     #### Raw Scope Manipulators ####
     ################################
 
-# REFACTOR - change name to 
     def add_to_scope(self, node):
         self.scope.append(node)
 
-    # REFACTOR - change name to remove_current_scope
-    def remove_from_scope(self):
-        self.scope.pop()
+    def remove_scoped_node(self):
+        return self.scope.pop()
 
+    # Replaces __parent
+    def get_scoped_node(self, position = 1):
+        if position > 0:
+            position = -position
 
-    # REFACTOR - why is the private
-    def __parent(self):
         if len(self.scope) > 0:
-            return self.scope[-1]
+            return self.scope[position]
         else:
             # the scope is empty
             return None

@@ -2,61 +2,39 @@ import jeap.tree as tree
 import jeap.nodes2 as nodes
 
 def test_add_root_node_base():
-    root_node = nodes.RootNode()
     t = tree.NodeTree()
-    root_node.tree = t
+    root_node = nodes.RootNode(t)
 
-    root_node.on_add(None)
+    root_node.add()
     assert t.root == root_node
     assert len(t.scope) == 1
     assert t.scope[0] == root_node
 
-def test_add_object_node_base():
-    t = tree.NodeTree()
-    root_node = nodes.RootNode(t)
-    t.add(root_node)
-
-    object_node = nodes.ObjectNode(t)
+def test_add_object_node_to_empty_tree():
     # add an object when the tree does not have a root node
-    t.add(object_node)
-    assert len(t.scope) == 2
-    assert t.scope[1] == object_node
-    assert t.scope[0].children[0] == object_node
-
-def test_add_object_node_without_root():
     t = tree.NodeTree()
-
     object_node = nodes.ObjectNode(t)
-
     t.add(object_node)
+    # scope should have a root node and an object node
     assert len(t.scope) == 2
-    assert t.scope[1] == object_node
     assert t.scope[0].type == 'root'
-    assert t.scope[0].children[0] == object_node
+    assert t.scope[1] == object_node
+    # the root node's child should be the object node
+    assert t.root.children[0] == object_node
 
-def test_add_array_node_base():
-    t = tree.NodeTree()
-
-    root_node = nodes.RootNode(t)
-    t.add(root_node)
-
-    array_node = nodes.ArrayNode(t)
+def test_add_array_node_to_empty_tree():
     # add the array when the tree does not contain a root node
-    t.add(array_node)
-    assert len(t.scope) == 2
-    assert t.scope[1] == array_node
-    assert t.scope[0].children[0] == array_node
-
-def test_add_array_node_without_root():
     t = tree.NodeTree()
 
     array_node = nodes.ArrayNode(t)
     
     t.add(array_node)
+    # scope should contain root node and an array node
     assert len(t.scope) == 2
     assert t.scope[1] == array_node
     assert t.scope[0].type == 'root'
-    assert t.scope[0].children[0] == array_node
+    # the root nodes' child should be the array node
+    assert t.root.children[0] == array_node
 
 def test_add_pair_node_to_object():
     t = tree.NodeTree()

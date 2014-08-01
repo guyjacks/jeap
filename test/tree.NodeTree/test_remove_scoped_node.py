@@ -8,5 +8,5 @@ def test_base():
     t.add_to_scope(node)
     assert t.scope[0] is node
 
-    t.remove_from_scope()
+    t.remove_scoped_node()
     assert 0 == len(t.scope)
