@@ -33,3 +33,12 @@ class NodeTree(object):
         else:
             # the scope is empty
             return None
+
+class ExpressionTree(object):
+    def __init__(self):
+        self.root = None
+        self.last_operator = None
+        self.last_value = None
+
+    def add(self, node):
+        node.add()

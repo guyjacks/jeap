@@ -240,9 +240,16 @@ def test_add_text_to_array():
     actual_text_node = tree.json_scope_stack[1]
     assert text_node == actual_text_node
 
+def test_add_literal_node_to_empty_expression():
+    t = node.Nodes()
+    en = nodes.ExpressionNode(t)
+
 def test_add_text_to_text():
     assert True == False
 
 # Test adding variable nodes
 def test_add_variable_to_text():
+    assert True == False
+
+def test_add_expression_node_to_tree():
     assert True == False

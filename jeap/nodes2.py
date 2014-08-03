@@ -2,6 +2,7 @@ class NodeFactory(object):
     def __init__(self):
         self.tree = None
 
+    """
     def create(self, type, *args, **kwargs):
         value = args[0] if len(args) > 0 else None
         if type == 'value':
@@ -19,6 +20,7 @@ class NodeFactory(object):
             return ArrayNode(tree)
         elif type == 'root':
             return RootNode(tree)
+    """
 
 class Node(object):
 # ATTENTION: compiler will create a tree and then set it as the value for 
@@ -29,7 +31,7 @@ class Node(object):
         self.type = None
         self.children = []
         self.tree = tree
-
+    """
     def factory(self, type, *args, **kwargs):
         value = args[0] if len(args) > 0 else None
         if type == 'value':
@@ -47,6 +49,7 @@ class Node(object):
             return ArrayNode()
         elif type == 'root':
             return RootNode()
+    """
 
     def enter_scope(self, current_parent):
         pass
@@ -87,13 +90,13 @@ class ObjectNode(Node):
         self.type = 'object'
 
     def add(self):
-        scoped_node = self.tree.get_scoped_node()
-        if scoped_node is None:
+        parent_node = self.tree.get_scoped_node()
+        if parent_node is None:
             new_root_node = RootNode(self.tree)
             self.tree.add(new_root_node)
             self.tree.add(self)
-        elif scoped_node.type in ('pair', 'array', 'root'):
-            scoped_node.add_child(self)
+        elif parent_node.type in ('pair', 'array', 'root'):
+            parent_node.add_child(self)
             self.tree.add_to_scope(self)
         else:
             # raise error
@@ -109,13 +112,13 @@ class ArrayNode(Node):
         self.type = 'array'
 
     def add(self):
-        scoped_node = self.tree.get_scoped_node()
-        if scoped_node is None:
+        parent_node = self.tree.get_scoped_node()
+        if parent_node is None:
             new_root_node = RootNode(self.tree)
             self.tree.add(new_root_node)
             self.tree.add(self)
-        elif scoped_node.type in ('pair', 'array', 'root'):
-            scoped_node.add_child(self)
+        elif parent_node.type in ('pair', 'array', 'root'):
+            parent_node.add_child(self)
             self.tree.add_to_scope(self)
         else:
             # raise error
@@ -132,21 +135,21 @@ class PairNode(Node):
 
     def add(self):
 # a pair must always be the child of an object
-        scoped_node = self.tree.get_scoped_node()
-        if (scoped_node is None) or (scoped_node.type != 'object'):
+        parent_node = self.tree.get_scoped_node()
+        if (parent_node is None) or (parent_node.type != 'object'):
             new_object_node = ObjectNode(self.tree)
 #new_object_node.add_child(self)
             self.tree.add(new_object_node)
             self.tree.add(self)
         else:
-            scoped_node.add_child(self)
+            parent_node.add_child(self)
             self.tree.add_to_scope(self)
 
     def child_exits_scope(self, child_node):
 # A pair's children can only contain a single node.  The child node's type 
 # must be an object, an array, or a value node.  It CANNOT be
 # another pair because a pair can only exist as the child of an object.
-        self.tree.close_scoped_node()
+        self.tree.close_parent_node()
 
 class ValueNode(Node):
 # ATTENTION: json.org specifies that a pair key must be a string so
@@ -160,9 +163,9 @@ class ValueNode(Node):
             self.add_child(LiteralNode(value, self.tree))
 
     def add(self):
-        scoped_node = self.tree.get_scoped_node()
-        if scoped_node.type in ('array', 'pair'):
-            scoped_node.add_child(self)
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type in ('array', 'pair'):
+            parent_node.add_child(self)
             self.tree.add_to_scope(self)
         else:
             # raise error
@@ -184,9 +187,9 @@ class SymbolNode(Node):
         self.identifier = identifier
 
     def add(self):
-        scoped_node = self.tree.get_scoped_node()
-        if scoped_node.type == 'value':
-            scoped_node.add_child(self)
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type == 'value':
+            parent_node.add_child(self)
         else:
             # raise error
             pass
@@ -201,26 +204,97 @@ class LiteralNode(Node):
         self.value = value
 
     def add(self):
-        scoped_node = self.tree.get_scoped_node()
-        if scoped_node.type == 'value':
-            scoped_node.add_child(self)
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type == 'value':
+            parent_node.add_child(self)
+        elif parent_node.type == None:
+            # this should create an array -- maybe
+            pass
         else:
             # raise error
             pass
 
     def render(self):
         return self.value
-
+    
 #### Flow Control Nodes ####
+class LoopNode(object):
+    def __init__(self, expression):
+        pass
+
+class IfNode(object):
+    def __init__(self, expression):
+        pass
 
 class ExpressionNode(Node):
-    def __init__(self, tree = None):
+    def __init__(self, tree = None, exp_tree = None):
+        self.type = 'expression'
         super(ExpressionNode, self).__init__(tree)
-        self.root  = None
-        self.scope = []
+        self.tree = tree
+        self.expression_tree = exp_tree
+
+    def add(self):
+        pass
+
+    def exit_scope(self):
+# add set last_value to right of last operator (if applicable)
+        pass
 
     def render(context):
-        self.root.evaluate()
+        self.tree.root.evaluate()
+
+#### Store the priority (Order) of operations ####
+or_op = 1
+and_op = 2
+# relational operators are >,<,==, ...
+relational_op = 3
+add_or_subtract_op = 4
+multiple_or_divide_op = 5
+exponent_op = 6
+group_op = 7
+
+class ExpressionLiteralNode(Node):
+    def __init__(self, value, tree=None):
+        self.type = 'literal'
+        self.tree = tree
+        self.value = value
+
+    def add(self):
+        self.tree.last_value = self
+
+    def evaluate(self):
+        return value
+
+class OperatorNode(Node):
+    def __le__(self, other):
+        return self.priority <= other.priority
+
+    def __gt__(self, other):
+        return self.priority > other.priority
+
+class AddOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        self.tree = tree
+        self.priority = add_or_subtract_op
+        self.left = None
+        self.right = None
+
+    def add(self):
+        last_operator = self.tree.last_operator
+        if last_operator == None:
+            self.left = self.tree.last_value
+        elif self <= last_operator:
+            pass
+        elif self > last_operator:
+            pass
+        else:
+            # raise exception
+            pass
+        self.tree.last_operator = self
+
+    def evaluate(self):
+        pass
+
 
 ############################################################
 #### May want to create a separate module for operators ####
@@ -229,11 +303,10 @@ class ExpressionNode(Node):
 # use python operator library to evaluate left and right
 # don't forget that it could just be a matter of resolving a variable
 
-class GroupExpressionNode(object):
+class GroupOperatorNode(object):
     def __init__(self, tree = None):
-        self.root = None # could be an expression node
-        self.scope = []
-# a. * (b - c) * d
+        self.tree = tree
+# a * (b - c) * d
 # a. tree.scope = [a]
 # *. tree.scope = [*]
 #    *.left = a
@@ -255,25 +328,3 @@ class GroupExpressionNode(object):
 # d. tree.scope = []
 #    *2.right = d
 
-class AddOperatorNode(ExpressionNode):
-    def __init__(self):
-        self.left = None
-        self.right = None
-
-    def evaluate(self):
-        pass
-
-    def __le__(self, other):
-# I think I only need the <=
-        pass
-
-    def __gt__(self, other):
-        pass
-    
-class LoopNode(object):
-    def __init__(self, expression):
-        pass
-
-class IfNode(object):
-    def __init__(self, expression):
-        pass
