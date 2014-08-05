@@ -1,3 +1,4 @@
+import operator
 class NodeFactory(object):
     def __init__(self):
         self.tree = None
@@ -227,31 +228,42 @@ class IfNode(object):
         pass
 
 class ExpressionNode(Node):
-    def __init__(self, tree = None, exp_tree = None):
+    def __init__(self, tree = None, expression_tree = None):
         self.type = 'expression'
         super(ExpressionNode, self).__init__(tree)
         self.tree = tree
-        self.expression_tree = exp_tree
+        #self.expression_tree = exp_tree
+        self.expression = GroupNode(expression_tree)
 
     def add(self):
-        pass
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type == 'if':
+            pass
+        elif parent_node.type == 'for':
+            pass
+        else:
+            # {{ expr }}
+            pass
 
     def exit_scope(self):
 # add set last_value to right of last operator (if applicable)
         pass
 
     def render(context):
-        self.tree.root.evaluate()
+#return self.expression_tree.root.evaluate()
+        return self.expression.evaluate()
+
+    def add_to_expression(self, node):
+        self.expression.add_to_expression(node)
 
 #### Store the priority (Order) of operations ####
-or_op = 1
-and_op = 2
+or_op_priority = 1
+and_op_priority = 2
 # relational operators are >,<,==, ...
-relational_op = 3
-add_or_subtract_op = 4
-multiple_or_divide_op = 5
-exponent_op = 6
-group_op = 7
+relational_op_priority = 3
+add_or_subtract_op_priority = 4
+multiply_or_divide_op_priority = 5
+exponent_op_priority = 6
 
 class ExpressionLiteralNode(Node):
     def __init__(self, value, tree=None):
@@ -260,71 +272,84 @@ class ExpressionLiteralNode(Node):
         self.value = value
 
     def add(self):
-        self.tree.last_value = self
+        pass
 
     def evaluate(self):
-        return value
+        return self.value
 
 class OperatorNode(Node):
+    def __init__(self, tree):
+        self.type = 'operator'
+        self.tree = tree
+        self.left = None
+        self.right = None
+
+    def add(self):
+        # add this node to the node tree
+        # sees parent is expression and calls parent's add_to_expression
+        pass
+
     def __le__(self, other):
         return self.priority <= other.priority
 
     def __gt__(self, other):
         return self.priority > other.priority
 
-class AddOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
+class GroupNode(Node):
+    def __init__(self, tree):
         self.tree = tree
-        self.priority = add_or_subtract_op
-        self.left = None
-        self.right = None
+        self.type = 'group'
 
-    def add(self):
-        last_operator = self.tree.last_operator
-        if last_operator == None:
-            self.left = self.tree.last_value
-        elif self <= last_operator:
-            pass
-        elif self > last_operator:
-            pass
-        else:
-            # raise exception
-            pass
-        self.tree.last_operator = self
-
-    def evaluate(self):
+    def add(self, node):
         pass
 
+    def add_to_expression(self, node):
+        self.tree.add(node)
 
-############################################################
-#### May want to create a separate module for operators ####
-############################################################
+    def close(self):
+        self.tree.close()
 
-# use python operator library to evaluate left and right
-# don't forget that it could just be a matter of resolving a variable
+    def evaluate(self):
+        return self.tree.root.evaluate()
 
-class GroupOperatorNode(object):
+class AddOperatorNode(OperatorNode):
     def __init__(self, tree = None):
-        self.tree = tree
-# a * (b - c) * d
-# a. tree.scope = [a]
-# *. tree.scope = [*]
-#    *.left = a
-# (. tree.scope = [*, ()]
-# b. tree.scope = [*, ()]
-#    ().scope = [b]
-# -. tree.scope = [*, ()]
-#    ().scope = [-]
-#    ().scope.-.left = b
-# c. tree.scope = [*, ()]
-#    ().scope = [-, c]
-# ). tree.scope = [*]
-#    *.right = ()
-#    ().scope = []
-#    ().root = -
-#    ().root.right = c
-# *2. tree.scope = [*2]
-#    *2.left = *
-# d. tree.scope = []
-#    *2.right = d
+        super(AddOperatorNode, self).__init__(tree)
+        self.priority = add_or_subtract_op_priority 
 
+    def evaluate(self):
+        return operator.add(self.left.evaluate(), self.right.evaluate())
+
+class SubtractOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(SubtractOperatorNode, self).__init__(tree)
+        self.priority = add_or_subtract_op_priority
+
+    def evaluate(self):
+        return operator.sub(self.left.evaluate(), self.right.evaluate())
+
+class MultiplyOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(MultiplyOperatorNode, self).__init__(tree)
+        self.priority = multiply_or_divide_op_priority
+
+    def evaluate(self):
+        return operator.mul(self.left.evaluate(), self.right.evaluate())
+
+class DivideOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(DivideOperatorNode, self).__init__(tree)
+        self.priority = multiply_or_divide_op_priority
+
+    def evaluate(self):
+        return operator.div(self.left.evaluate(), self.right.evaluate())
+
+class ExponentOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(ExponentOperatorNode, self).__init__(tree)
+        self.priority = exponent_op_priority 
+
+class RelationalOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(RelationalOperatorNode, self).__init__(tree)
+        self.priority = relational_op_priority
