@@ -84,6 +84,9 @@ class ExpressionTree(object):
     def add_literal_node(self, node):
         self.last_value = node
 
+    def add_negate_node(self, node):
+        pass
+
     def close(self):
         if self.group:
             self.last_value.close()

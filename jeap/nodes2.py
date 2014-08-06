@@ -270,12 +270,16 @@ class ExpressionLiteralNode(Node):
         self.type = 'literal'
         self.tree = tree
         self.value = value
+        self.negate = False
 
     def add(self):
         pass
 
     def evaluate(self):
-        return self.value
+        if self.negate:
+            return not self.value
+        else:
+            return self.value
 
 class OperatorNode(Node):
     def __init__(self, tree):
@@ -299,6 +303,7 @@ class GroupNode(Node):
     def __init__(self, tree):
         self.tree = tree
         self.type = 'group'
+        self.negate = False
 
     def add(self, node):
         pass
@@ -310,7 +315,10 @@ class GroupNode(Node):
         self.tree.close()
 
     def evaluate(self):
-        return self.tree.root.evaluate()
+        if self.negate:
+            return not self.tree.root.evaluate()
+        else:
+            return self.tree.root.evaluate()
 
 class AddOperatorNode(OperatorNode):
     def __init__(self, tree = None):
