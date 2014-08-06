@@ -361,6 +361,22 @@ class ExponentOperatorNode(OperatorNode):
     def evaluate(self):
         return operator.pow(self.left.evaluate(), self.right.evaluate())
 
+class AndOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(AndOperatorNode, self).__init__(tree)
+        self.priority = and_op_priority 
+
+    def evaluate(self):
+        return (self.left.evaluate() and self.right.evaluate())
+
+class OrOperatorNode(OperatorNode):
+    def __init__(self, tree = None):
+        super(OrOperatorNode, self).__init__(tree)
+        self.priority = or_op_priority 
+
+    def evaluate(self):
+        return (self.left.evaluate() or self.right.evaluate())
+
 class NegateNode(Node):
     def __init__(self, tree = None):
         self.type = 'negate'
