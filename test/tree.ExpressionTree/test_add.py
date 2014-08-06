@@ -1,5 +1,5 @@
 import jeap.tree as tree
-import jeap.nodes2 as nodes
+import jeap.nodes as nodes
 
 def test_add_literal():
     et = tree.ExpressionTree()
@@ -99,3 +99,35 @@ def test_add_group():
     assert group_node.tree.last_value == literal_two
     assert add_op.left == literal_two
     assert add_op.right == literal_two
+
+def test_add_negate_node_before_literal():
+    et = tree.ExpressionTree()
+    negate_node = nodes.NegateNode()
+    false_node = nodes.ExpressionLiteralNode(False)
+
+    et.add(negate_node)
+    et.add(false_node)
+    assert false_node.negate == True
+
+
+def test_add_negate_node_before_group():
+    et = tree.ExpressionTree()
+    negate_node = nodes.NegateNode()
+    grp_node = nodes.GroupNode(tree.ExpressionTree())
+
+    et.add(negate_node)
+    et.add(grp_node)
+    assert grp_node.negate == True
+
+def test_add_negate_node_before_operator():
+    # not False Or 
+    et = tree.ExpressionTree()
+    negate_node = nodes.NegateNode()
+    false_node = nodes.ExpressionLiteralNode(False)
+    or_node = nodes.OrOperatorNode()
+
+    et.add(negate_node)
+    et.add(false_node)
+    et.add(or_node)
+    assert false_node.negate == True
+    assert or_node.negate == False

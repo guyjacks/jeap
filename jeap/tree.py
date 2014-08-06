@@ -44,7 +44,11 @@ class ExpressionTree(object):
         self.closed = False
 
     def add(self, node):
-#if self.last_value and self.last_value.type == 'group':
+
+        if self.negate_next:
+            node.negate = True
+            self.negate_next = False
+
         if self.group:
             self.last_value.add_to_expression(node)
         else:
@@ -59,9 +63,6 @@ class ExpressionTree(object):
             else:
                 # raise error
                 pass
-        if self.negate:
-            node.negate = True
-            self.negate = False
 
     def add_group_node(self, node):
         self.last_value = node
