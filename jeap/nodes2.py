@@ -259,7 +259,7 @@ class ExpressionNode(Node):
 #### Store the priority (Order) of operations ####
 or_op_priority = 1
 and_op_priority = 2
-# relational operators are >,<,==, ...
+# relational operator.are >,<,==, ...
 relational_op_priority = 3
 add_or_subtract_op_priority = 4
 multiply_or_divide_op_priority = 5
@@ -287,6 +287,7 @@ class OperatorNode(Node):
         self.tree = tree
         self.left = None
         self.right = None
+        self.negate = False
 
     def add(self):
         # add this node to the node tree
@@ -360,7 +361,34 @@ class ExponentOperatorNode(OperatorNode):
     def evaluate(self):
         return operator.pow(self.left.evaluate(), self.right.evaluate())
 
-class RelationalOperatorNode(OperatorNode):
+class NegateNode(Node):
     def __init__(self, tree = None):
+        self.type = 'negate'
+
+class RelationalOperatorNode(OperatorNode):
+    def __init__(self, operation, tree = None):
         super(RelationalOperatorNode, self).__init__(tree)
         self.priority = relational_op_priority
+        self.operation = operation
+
+    def evaluate(self):
+        result = None
+        left = self.left.evaluate()
+        right = self.right.evaluate()
+
+        if self.operation == '<':
+            result = operator.lt(left, right)
+        elif self.operation == '<=':
+            result = operator.le(left, right)
+        elif self.operation == '==':
+            result = operator.eq(left, right)
+        elif self.operation == '!=':
+            result = operator.ne(left, right)
+        elif self.operation == '>':
+            result = operator.gt(left, right)
+        elif self.operation == '>=':
+            result = operator.ge(left, right)
+
+        if self.negate:
+            result = not result
+        return result

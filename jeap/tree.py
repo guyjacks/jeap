@@ -39,6 +39,7 @@ class ExpressionTree(object):
         self.root = None
         self.last_operator = None
         self.last_value = None
+        self.negate_next = False
         self.group = False
         self.closed = False
 
@@ -53,9 +54,14 @@ class ExpressionTree(object):
                 self.add_operator_node(node)
             elif node.type == 'literal':
                 self.add_literal_node(node)
+            elif node.type == 'negate':
+                self.add_negate_node(node)
             else:
                 # raise error
                 pass
+        if self.negate:
+            node.negate = True
+            self.negate = False
 
     def add_group_node(self, node):
         self.last_value = node
@@ -85,7 +91,7 @@ class ExpressionTree(object):
         self.last_value = node
 
     def add_negate_node(self, node):
-        pass
+        self.negate_next = True
 
     def close(self):
         if self.group:
