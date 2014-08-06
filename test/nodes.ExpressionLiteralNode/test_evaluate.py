@@ -24,3 +24,12 @@ def test_negate_boolean():
 def test_string():
     eln = nodes.ExpressionLiteralNode('hello world')
     assert eln.evaluate() == 'hello world'
+
+def test_list():
+    eln = nodes.ExpressionLiteralNode([1, 2, 3])
+    assert eln.evaluate() == [1, 2, 3]
+
+def test_dict():
+    d = {'first': 'Guy', 'middle': 'l', 'last': 'jacks'}
+    eln = nodes.ExpressionLiteralNode(d)
+    assert eln.evaluate() == d

@@ -404,6 +404,8 @@ class RelationalOperatorNode(OperatorNode):
             result = operator.gt(left, right)
         elif self.operation == '>=':
             result = operator.ge(left, right)
+        elif self.operation == 'in':
+            result = (left in right)
 
         if self.negate:
             result = not result
