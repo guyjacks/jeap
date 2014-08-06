@@ -349,6 +349,9 @@ class ExponentOperatorNode(OperatorNode):
         super(ExponentOperatorNode, self).__init__(tree)
         self.priority = exponent_op_priority 
 
+    def evaluate(self):
+        return operator.pow(self.left.evaluate(), self.right.evaluate())
+
 class RelationalOperatorNode(OperatorNode):
     def __init__(self, tree = None):
         super(RelationalOperatorNode, self).__init__(tree)
