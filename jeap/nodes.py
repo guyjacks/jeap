@@ -50,15 +50,28 @@ class ObjectNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
+
         if parent_node is None:
             new_root_node = RootNode(self.tree)
             self.tree.add(new_root_node)
             self.tree.add(self)
-        elif parent_node.type in ('pair', 'array', 'root'):
-            parent_node.add_child(self)
+        else:
+            effective_parent_type = parent_node.type
+            # forking requires us to check the root type before adding 
+            # nodes to the prong.  the prong's root type becomes the 
+            # effective type for determining whether or not this node
+            # should be added
+            if effective_parent_type == 'prong':
+                effective_parent_type = parent_node.root.type
+            self.__add_to_tree(effective_parent_type)
+
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type in ('pair', 'array', 'root'):
+            parent = self.tree.get_scoped_node()
+            parent.add_child(self)
             self.tree.add_to_scope(self)
         else:
-            # raise error
+            # raise exception
             pass
 
     def add_child(self, node):

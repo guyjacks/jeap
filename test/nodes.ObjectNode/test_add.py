@@ -13,8 +13,30 @@ def test_add_object_to_empty_tree():
     # the root node's child should be the object node
     assert t.root.children[0] == object_node
 
-def test_add_object_to_pair():
+def test_add_to_pair():
     assert True == False
 
-def test_add_object_to_array():
+def test_add_to_array():
+    assert True == False
+
+def test_add_to_object():
+    # an object cannot be added to an object
+    assert True == False
+
+def test_add_to_prong():
+    t = tree.NodeTree()
+    fork_node = nodes.ForkNode(t)
+    prong_node = nodes.ProngNode(t)
+    object_node = nodes.ObjectNode(t)
+    fork_node.add()
+    prong_node.add()
+    object_node.add()
+
+    assert prong_node.children[-1] == object_node
+    assert len(t.scope) == 4
+    assert t.scope[-1] == object_node
+    assert object_node not in t.root.children
+
+def test_add_to_prong_when_prong_root_is_object():
+    # an object cannot be added to an object
     assert True == False
