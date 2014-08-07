@@ -106,7 +106,7 @@ class PairNode(Node):
 
     def child_exits_scope(self, child_node):
 # A pair's children can only contain a single node.  The child node's type 
-# must be an object, an array, or a value node.  It CANNOT be
+# must be an object, an array, a value node, or a BranchesNode.  It CANNOT be
 # another pair because a pair can only exist as the child of an object.
         self.tree.close_parent_node()
 
@@ -185,6 +185,7 @@ class BranchesNode(Node):
     def __init__(self, tree = None):
         super(BranchesNode, self).__init__(tree)
         self.type = 'branches'
+        self.root = None
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
@@ -195,6 +196,7 @@ class BranchesNode(Node):
         else:
             parent_node.add_child(self)
             self.tree.add_to_scope(self)
+            self.root = parent_node
 
 class ExpressionNode(Node):
     def __init__(self, tree = None, expression_tree = None):
