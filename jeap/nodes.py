@@ -106,21 +106,35 @@ class PairNode(Node):
         self.key = key
 
     def add(self):
-# a pair must always be the child of an object
         parent_node = self.tree.get_scoped_node()
+        """
         if (parent_node is None) or (parent_node.type != 'object'):
             new_object_node = ObjectNode(self.tree)
-#new_object_node.add_child(self)
             self.tree.add(new_object_node)
             self.tree.add(self)
         else:
             parent_node.add_child(self)
             self.tree.add_to_scope(self)
+        """
+
+        if parent_node == None:
+            ObjectNode(self.tree).add()
+            self.add()
+        else:
+            effective_parent_type = parent_node.type
+            if parent_node.type == 'prong':
+                effective_parent_type = parent_node.root.type
+            self.__add_to_tree(effective_parent_type)
+                
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type != 'object':
+            ObjectNode(self.tree).add()
+            self.add()
+        else:
+            self.tree.get_scoped_node().add_child(self)
+            self.tree.add_to_scope(self)
 
     def child_exits_scope(self, child_node):
-# A pair's children can only contain a single node.  The child node's type 
-# must be an object, an array, a value node, or a BranchesNode.  It CANNOT be
-# another pair because a pair can only exist as the child of an object.
         self.tree.close_parent_node()
 
 class ValueNode(Node):
