@@ -1,27 +1,4 @@
 import operator
-class NodeFactory(object):
-    def __init__(self):
-        self.tree = None
-
-    """
-    def create(self, type, *args, **kwargs):
-        value = args[0] if len(args) > 0 else None
-        if type == 'value':
-            return ValueNode(tree, value)
-        elif type == 'literal':
-            return LiteralNode(tree, value)
-        elif type == 'symbol':
-            return SymbolNode(tree, value)
-        elif type == 'pair':
-            key = self.factory('value', value)
-            return PairNode(key, tree)
-        elif type == 'object':
-            return ObjectNode(tree)
-        elif type == 'array':
-            return ArrayNode(tree)
-        elif type == 'root':
-            return RootNode(tree)
-    """
 
 class Node(object):
 # ATTENTION: compiler will create a tree and then set it as the value for 
@@ -32,25 +9,6 @@ class Node(object):
         self.type = None
         self.children = []
         self.tree = tree
-    """
-    def factory(self, type, *args, **kwargs):
-        value = args[0] if len(args) > 0 else None
-        if type == 'value':
-            return ValueNode(value)
-        elif type == 'literal':
-            return LiteralNode(value)
-        elif type == 'symbol':
-            return SymbolNode(value)
-        elif type == 'pair':
-            key = self.factory('value', value)
-            return PairNode(key)
-        elif type == 'object':
-            return ObjectNode()
-        elif type == 'array':
-            return ArrayNode()
-        elif type == 'root':
-            return RootNode()
-    """
 
     def enter_scope(self, current_parent):
         pass
@@ -223,9 +181,20 @@ class LoopNode(object):
     def __init__(self, expression):
         pass
 
-class IfNode(object):
-    def __init__(self, expression):
-        pass
+class BranchesNode(Node):
+    def __init__(self, tree = None):
+        super(BranchesNode, self).__init__(tree)
+        self.type = 'branches'
+
+    def add(self):
+        parent_node = self.tree.get_scoped_node()
+        if parent_node == None:
+            root_node = RootNode(self.tree)
+            root_node.add()
+            self.add()
+        else:
+            parent_node.add_child(self)
+            self.tree.add_to_scope(self)
 
 class ExpressionNode(Node):
     def __init__(self, tree = None, expression_tree = None):

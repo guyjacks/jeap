@@ -1,5 +1,5 @@
 import jeap.tree as tree
-import jeap.nodes2 as nodes
+import jeap.nodes as nodes
 
 def test_less_than():
     two = nodes.ExpressionLiteralNode(2)
@@ -107,3 +107,18 @@ def test_not_equal():
     neq.negate = True
     assert neq.evaluate() == True
 
+def test_in():
+    two = nodes.ExpressionLiteralNode(2)
+    four = nodes.ExpressionLiteralNode(4)
+    list_node = nodes.ExpressionLiteralNode([1, 2, 3])
+    in_op = nodes.RelationalOperatorNode('in')
+
+    in_op.left = two
+    in_op.right = list_node
+    assert in_op.evaluate() == True
+
+    in_op.left = four
+    assert in_op.evaluate() == False
+
+    in_op.negate = True
+    assert in_op.evaluate() == True
