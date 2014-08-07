@@ -181,10 +181,10 @@ class LoopNode(object):
     def __init__(self, expression):
         pass
 
-class BranchesNode(Node):
+class ForkNode(Node):
     def __init__(self, tree = None):
-        super(BranchesNode, self).__init__(tree)
-        self.type = 'branches'
+        super(ForkNode, self).__init__(tree)
+        self.type = 'fork'
         self.root = None
 
     def add(self):
@@ -197,6 +197,22 @@ class BranchesNode(Node):
             parent_node.add_child(self)
             self.tree.add_to_scope(self)
             self.root = parent_node
+
+class ProngNode(Node):
+    def __init__(self, tree = None):
+        super(ProngNode, self).__init__(tree)
+        self.type = 'prong'
+        self.root = None
+
+    def add(self):
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type == 'fork':
+            self.root = parent_node.root
+            parent_node.add_child(self)
+            self.tree.add_to_scope(self)
+        else:
+            # raise error
+            pass
 
 class ExpressionNode(Node):
     def __init__(self, tree = None, expression_tree = None):
