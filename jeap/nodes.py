@@ -94,11 +94,17 @@ class ArrayNode(Node):
             new_root_node = RootNode(self.tree)
             self.tree.add(new_root_node)
             self.tree.add(self)
-        elif parent_node.type in ('pair', 'array', 'root'):
-            parent_node.add_child(self)
+        else: 
+            effective_parent_type = self._get_effective_parent_type()
+            self.__add_to_tree(effective_parent_type)
+
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type in ('pair', 'array', 'root'):
+            parent = self.tree.get_scoped_node()
+            parent.add_child(self)
             self.tree.add_to_scope(self)
         else:
-            # raise error
+            # raise exception
             pass
 
 class PairNode(Node):
