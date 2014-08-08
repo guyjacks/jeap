@@ -63,9 +63,8 @@ class ObjectNode(Node):
         parent_node = self.tree.get_scoped_node()
 
         if parent_node is None:
-            new_root_node = RootNode(self.tree)
-            self.tree.add(new_root_node)
-            self.tree.add(self)
+            RootNode(self.tree).add()
+            self.add()
         else:
             effective_parent_type = self._get_effective_parent_type()
             self.__add_to_tree(effective_parent_type)
@@ -91,9 +90,8 @@ class ArrayNode(Node):
     def add(self):
         parent_node = self.tree.get_scoped_node()
         if parent_node is None:
-            new_root_node = RootNode(self.tree)
-            self.tree.add(new_root_node)
-            self.tree.add(self)
+            RootNode(self.tree).add()
+            self.add()
         else: 
             effective_parent_type = self._get_effective_parent_type()
             self.__add_to_tree(effective_parent_type)
@@ -118,15 +116,6 @@ class PairNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
-        """
-        if (parent_node is None) or (parent_node.type != 'object'):
-            new_object_node = ObjectNode(self.tree)
-            self.tree.add(new_object_node)
-            self.tree.add(self)
-        else:
-            parent_node.add_child(self)
-            self.tree.add_to_scope(self)
-        """
 
         if parent_node == None:
             ObjectNode(self.tree).add()
