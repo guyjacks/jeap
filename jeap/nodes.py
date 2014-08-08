@@ -164,6 +164,34 @@ class ValueNode(Node):
         # the link function looks up the variable name in the compilers symbol table
         pass
 
+class JsonLiteralValueNode(Node):
+    """
+        a json literal is one of the following; a pair key, a pair value, or an array item
+    """
+    def __init__(self, tree = None):
+        super(JsonLiteralValueNode, self).__init__(tree)
+        self.type == 'json_literal_value'
+
+    def add(self):
+        parent_node = self.tree.get_scoped_node()
+
+        if parent_node == None:
+            RootNode(self.tree).add()
+            self.add()
+        else:
+            effective_parent_type = self._get_effective_parent_type()
+            self.__add_to_tree(effective_parent_type)
+                
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type in ('pair', 'array'):
+            self.tree.get_scoped_node().add_child(self)
+        self.tree.add_to_scope(self)
+
+    def close(self):
+        # if parent node is not already object, pair, or array then
+        # create an array to store this value
+        pass
+
 class SymbolNode(Node):
     def __init__(self, identifier, tree = None):
         super(SymbolNode, self).__init__(tree)
