@@ -192,36 +192,6 @@ class JsonStringNode(Node):
             JsonLiteralValueNode(self.tree).add()
         self.tree.get_scoped_node().add_child(self)
 
-class ValueNode(Node):
-# ATTENTION: json.org specifies that a pair key must be a string so
-# its possible that I will need to create a separate type for pair key.
-    def __init__(self, value, symbol = False, tree = None):
-        super(ValueNode, self).__init__(tree)
-        self.type = 'value'
-        if symbol == True:
-            self.add_child(SymbolNode(value, self.tree))
-        else:
-            self.add_child(LiteralNode(value, self.tree))
-
-    def add(self):
-        parent_node = self.tree.get_scoped_node()
-        if parent_node.type in ('array', 'pair'):
-            parent_node.add_child(self)
-            self.tree.add_to_scope(self)
-        else:
-            # raise error
-            pass
-
-    def render(self):
-        # ex. children = [LiteralNode('hello'), SymbolNode('name'), LiteralNode('35'), ...]
-        # loop through children
-            # link variables to value and concatenate children
-        # the compiler will supply a link() function that returns an error
-        # or the variables value
-        # the link function looks up the variable name in the compilers symbol table
-        pass
-
-
 class SymbolNode(Node):
     def __init__(self, identifier, tree = None):
         super(SymbolNode, self).__init__(tree)
