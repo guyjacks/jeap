@@ -1,16 +1,10 @@
 import jeap.tree as tree
 import jeap.nodes as nodes
-
-def add_pair_key_to_tree(key, tree):
-    pair_key_value_node = nodes.JsonLiteralValueNode(tree)
-    pair_key_literal_node = nodes.JsonStringNode(key, tree)
-    pair_key_value_node.add()
-    pair_key_literal_node.add()
-    return pair_key_value_node
+import test.test_utils as utils
 
 def test_pair_key_is_set_to_parent_value_node():
     t = tree.NodeTree()
-    pair_key_node = add_pair_key_to_tree('key', t)
+    pair_key_node = utils.add_pair_key_to_tree('key', t)
     pair_node = nodes.PairNode(t)
     pair_node.add()
 
@@ -23,7 +17,7 @@ def test_add_to_object():
     object_node = nodes.ObjectNode(t)
     object_node.add()
 
-    add_pair_key_to_tree('key', t)
+    pair_key_node = utils.add_pair_key_to_tree('key', t)
     pair_node = nodes.PairNode(t)
     pair_node.add()
 
@@ -33,7 +27,7 @@ def test_add_to_object():
 
 def test_add_to_empty_tree():
     t = tree.NodeTree()
-    add_pair_key_to_tree('key', t)
+    utils.add_pair_key_to_tree('key', t)
     pair_node = nodes.PairNode(t)
     pair_node.add()
 
@@ -55,7 +49,7 @@ def test_add_to_prong():
     pair_node = nodes.PairNode(t)
     fork_node.add()
     prong_node.add()
-    add_pair_key_to_tree('key', t)
+    utils.add_pair_key_to_tree('key', t)
     pair_node.add()
 
     assert prong_node.children[-1].type == 'object'
