@@ -34,6 +34,17 @@ class Node(object):
     def render_children(self):
         pass
 
+    def _get_effective_parent_type(self):
+        # forking requires us to check the root type before adding 
+        # nodes to the prong.  the prong's root type becomes the 
+        # effective type for determining whether or not this node
+        # should be added
+        parent = self.tree.get_scoped_node()
+        effective_parent_type = parent.type
+        if effective_parent_type == 'prong':
+            effective_parent_type = parent.root.type
+        return effective_parent_type
+
 class RootNode(Node):
     def __init__(self, tree = None):
         super(RootNode, self).__init__(tree)
@@ -56,13 +67,7 @@ class ObjectNode(Node):
             self.tree.add(new_root_node)
             self.tree.add(self)
         else:
-            effective_parent_type = parent_node.type
-            # forking requires us to check the root type before adding 
-            # nodes to the prong.  the prong's root type becomes the 
-            # effective type for determining whether or not this node
-            # should be added
-            if effective_parent_type == 'prong':
-                effective_parent_type = parent_node.root.type
+            effective_parent_type = self._get_effective_parent_type()
             self.__add_to_tree(effective_parent_type)
 
     def __add_to_tree(self, effective_parent_type):
@@ -121,9 +126,7 @@ class PairNode(Node):
             ObjectNode(self.tree).add()
             self.add()
         else:
-            effective_parent_type = parent_node.type
-            if parent_node.type == 'prong':
-                effective_parent_type = parent_node.root.type
+            effective_parent_type = self._get_effective_parent_type()
             self.__add_to_tree(effective_parent_type)
                 
     def __add_to_tree(self, effective_parent_type):
