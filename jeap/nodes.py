@@ -106,34 +106,91 @@ class ArrayNode(Node):
             pass
 
 class PairNode(Node):
-    def __init__(self, key, tree = None):
+    def __init__(self, tree = None):
         """
             @key: must be a ValueNode
         """
         super(PairNode, self).__init__(tree)
         self.type = 'pair'
-        self.key = key
+        self.key = None
+
+    def add(self):
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type == 'json_literal_value':
+            # set key value
+            self.key = parent_node
+            # remove the parent value node from the scope
+            self.tree.close_scoped_node() 
+
+            # add pair to the tree
+            parent_node = self.tree.get_scoped_node()
+            if parent_node == None:
+                ObjectNode(self.tree).add()
+            effective_parent_type = self._get_effective_parent_type()
+            self.__add_to_tree(effective_parent_type)
+     
+        else:
+            # Raise exception
+            pass
+   
+               
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type != 'object':
+            ObjectNode(self.tree).add()
+        self.tree.get_scoped_node().add_child(self)
+        self.tree.add_to_scope(self)
+
+    def child_exits_scope(self, child_node):
+        self.tree.close_parent_node()
+
+class JsonLiteralValueNode(Node):
+    """
+        a json literal is one of the following; a pair key, a pair value, or an array item
+    """
+    def __init__(self, tree = None):
+        super(JsonLiteralValueNode, self).__init__(tree)
+        self.type = 'json_literal_value'
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
 
         if parent_node == None:
-            ObjectNode(self.tree).add()
+            RootNode(self.tree).add()
             self.add()
         else:
             effective_parent_type = self._get_effective_parent_type()
             self.__add_to_tree(effective_parent_type)
                 
     def __add_to_tree(self, effective_parent_type):
-        if effective_parent_type != 'object':
-            ObjectNode(self.tree).add()
+        if effective_parent_type in ('pair', 'array'):
+            self.tree.get_scoped_node().add_child(self)
+        self.tree.add_to_scope(self)
+
+    def close(self):
+        # if parent node is not already object, pair, or array then
+        # create an array to store this value
+        pass
+
+class JsonStringNode(Node):
+    def __init__(self, value, tree = None):
+        super(JsonStringNode, self).__init__(tree)
+        self.tree = tree
+        self.type = 'json_string'
+        self.value = value
+        
+    def add(self):
+        parent = self.tree.get_scoped_node()
+        if parent == None:
+            RootNode(self.tree).add()
             self.add()
         else:
-            self.tree.get_scoped_node().add_child(self)
-            self.tree.add_to_scope(self)
+            effective_parent_type = self._get_effective_parent_type()
+            self.__add_to_tree(effective_parent_type)
 
-    def child_exits_scope(self, child_node):
-        self.tree.close_parent_node()
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type != 'json_literal_value':
+            JsonLiteralValueNode(self.tree).add()
+        self.tree.get_scoped_node().add_child(self)
 
 class ValueNode(Node):
 # ATTENTION: json.org specifies that a pair key must be a string so
@@ -164,33 +221,6 @@ class ValueNode(Node):
         # the link function looks up the variable name in the compilers symbol table
         pass
 
-class JsonLiteralValueNode(Node):
-    """
-        a json literal is one of the following; a pair key, a pair value, or an array item
-    """
-    def __init__(self, tree = None):
-        super(JsonLiteralValueNode, self).__init__(tree)
-        self.type == 'json_literal_value'
-
-    def add(self):
-        parent_node = self.tree.get_scoped_node()
-
-        if parent_node == None:
-            RootNode(self.tree).add()
-            self.add()
-        else:
-            effective_parent_type = self._get_effective_parent_type()
-            self.__add_to_tree(effective_parent_type)
-                
-    def __add_to_tree(self, effective_parent_type):
-        if effective_parent_type in ('pair', 'array'):
-            self.tree.get_scoped_node().add_child(self)
-        self.tree.add_to_scope(self)
-
-    def close(self):
-        # if parent node is not already object, pair, or array then
-        # create an array to store this value
-        pass
 
 class SymbolNode(Node):
     def __init__(self, identifier, tree = None):
