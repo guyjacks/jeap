@@ -1,34 +1,39 @@
 import jeap.tree as tree
 import jeap.nodes as nodes
+import test.test_utils as utils
 
-def test_add_value_node_to_pair():
+def test_add_to_empty_tree():
     t = tree.NodeTree()
+    lvn = nodes.ValueNode(t)
+    lvn.add()
 
-    pair_node = nodes.PairNode('key', t)
-    t.add(pair_node)
-    
-    value_node = nodes.ValueNode('value', tree=t)
+    assert t.root.type == 'root'
+    assert len(t.scope) == 2
+    assert t.scope[-1] == lvn
 
-    t.add(value_node)
-    # scope stack should contain 4 nodes; root, object, pair, and value
+def test_add_to_pair():
+    t = tree.NodeTree()
+    pair_key_node = utils.add_pair_key_to_tree('key', t)
+    pair_node = nodes.PairNode(t)
+    lvn = nodes.ValueNode(t)
+    pair_node.add()
+    lvn.add()
+
     assert len(t.scope) == 4
-    # pair node's first child should be the value_node
-    assert t.scope[2].children[0] == value_node
-    # the value node should be added to the scope
-    assert t.scope[3] == value_node
-    
-def test_add_value_node_to_array():
+    assert t.scope[-1] == lvn
+    assert pair_node.key == pair_key_node
+    assert pair_node.children[-1] == lvn
+
+def test_add_to_array():
     t = tree.NodeTree()
     array_node = nodes.ArrayNode(t)
-    t.add(array_node)
+    lvn = nodes.ValueNode(t)
+    array_node.add()
+    lvn.add()
 
-    value_node = nodes.ValueNode('value', tree=t)
-
-    t.add(value_node)
-    # scope stack should contain 3 nodes; root, array, and value
+    assert array_node.children[-1] == lvn
     assert len(t.scope) == 3
-    # array node's first child should be the value_node
-    assert t.scope[1].children[0] == value_node
-    # the value node should be added to the scope
-    assert t.scope[2] == value_node
- 
+    assert t.scope[-1] == lvn
+
+def test_add_to_prong():
+    pass

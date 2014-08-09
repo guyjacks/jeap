@@ -1,6 +1,6 @@
+import test.test_utils as utils
 import jeap.tree as tree
 import jeap.nodes as nodes
-import test.test_utils as utils
 
 def test_pair_key_is_set_to_parent_value_node():
     t = tree.NodeTree()

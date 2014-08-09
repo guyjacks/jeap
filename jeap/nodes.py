@@ -116,7 +116,7 @@ class PairNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
-        if parent_node.type == 'json_literal_value':
+        if parent_node.type == 'value':
             # set key value
             self.key = parent_node
             # remove the parent value node from the scope
@@ -143,13 +143,13 @@ class PairNode(Node):
     def child_exits_scope(self, child_node):
         self.tree.close_parent_node()
 
-class JsonLiteralValueNode(Node):
+class ValueNode(Node):
     """
-        a json literal is one of the following; a pair key, a pair value, or an array item
+        a value is one of the following; a pair key, a pair value, or an array item
     """
     def __init__(self, tree = None):
-        super(JsonLiteralValueNode, self).__init__(tree)
-        self.type = 'json_literal_value'
+        super(ValueNode, self).__init__(tree)
+        self.type = 'value'
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
@@ -171,13 +171,14 @@ class JsonLiteralValueNode(Node):
         # create an array to store this value
         pass
 
-class JsonStringNode(Node):
-    def __init__(self, value, tree = None):
-        super(JsonStringNode, self).__init__(tree)
-        self.tree = tree
-        self.type = 'json_string'
+class LiteralNode(Node):
+    def __init__(self, value, value_type, tree = None):
+        self.type = 'literal'
         self.value = value
-        
+        # string, bool, or number
+        self.value_type = value_type
+        super(LiteralNode, self).__init__(tree)
+     
     def add(self):
         parent = self.tree.get_scoped_node()
         if parent == None:
@@ -188,8 +189,8 @@ class JsonStringNode(Node):
             self.__add_to_tree(effective_parent_type)
 
     def __add_to_tree(self, effective_parent_type):
-        if effective_parent_type != 'json_literal_value':
-            JsonLiteralValueNode(self.tree).add()
+        if effective_parent_type != 'value':
+            ValueNode(self.tree).add()
         self.tree.get_scoped_node().add_child(self)
 
 class SymbolNode(Node):
@@ -209,26 +210,6 @@ class SymbolNode(Node):
     def render(self, symbol_table):
         return symbol_table[self.identifier]
 
-class LiteralNode(Node):
-    def __init__(self, value, tree = None):
-        super(LiteralNode, self).__init__(tree)
-        self.type = 'literal'
-        self.value = value
-
-    def add(self):
-        parent_node = self.tree.get_scoped_node()
-        if parent_node.type == 'value':
-            parent_node.add_child(self)
-        elif parent_node.type == None:
-            # this should create an array -- maybe
-            pass
-        else:
-            # raise error
-            pass
-
-    def render(self):
-        return self.value
-    
 #### Flow Control Nodes ####
 class LoopNode(object):
     def __init__(self, expression):
