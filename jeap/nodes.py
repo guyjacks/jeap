@@ -191,23 +191,6 @@ class LiteralNode(Node):
             ValueNode(self.tree).add()
         self.tree.get_scoped_node().add_child(self)
 
-class SymbolNode(Node):
-    def __init__(self, identifier, tree = None):
-        super(SymbolNode, self).__init__(tree)
-        self.type = 'symbol'
-        self.identifier = identifier
-
-    def add(self):
-        parent_node = self.tree.get_scoped_node()
-        if parent_node.type == 'value':
-            parent_node.add_child(self)
-        else:
-            # raise error
-            pass
-
-    def render(self, symbol_table):
-        return symbol_table[self.identifier]
-
 #### Flow Control Nodes ####
 class LoopNode(object):
     def __init__(self, expression):
@@ -235,6 +218,7 @@ class ProngNode(Node):
         super(ProngNode, self).__init__(tree)
         self.type = 'prong'
         self.root = None
+        self.expression = None
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
@@ -256,13 +240,33 @@ class ExpressionNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
-        if parent_node.type == 'if':
-            pass
-        elif parent_node.type == 'for':
+        if parent_node == None:
+            root_node = RootNode()
+            root_node.add()
+
+        if parent_node.type == 'fork':
+            prong_node = ProngNode(self.tree)
+            prong_node.add()
+            prong_node.expression = self
+            self.tree.add_to_scope(self)
+        elif parent_node.type == 'loop':
             pass
         else:
             # {{ expr }}
+            effective_parent_type = self._get_effective_parent_type()
+            self.__add_to_tree(effective_parent_type)
+
+    def __add_to_tree(self, effective_parent_type):
+        if effective_parent_type == 'value':
+            self.tree.get_scoped_node().add_child(self)
+        elif effective_parent_type in ('root', 'array', 'object', 'pair'):
+            value_node = ValueNode(self.tree)
+            value_node.add()
+            value_node.add_child(self)
+        else:
+            # raise exception
             pass
+        self.tree.add_to_scope(self)
 
     def exit_scope(self):
 # add set last_value to right of last operator (if applicable)
@@ -274,6 +278,26 @@ class ExpressionNode(Node):
 
     def add_to_expression(self, node):
         self.expression.add_to_expression(node)
+
+"""
+class SymbolNode(Node):
+    def __init__(self, identifier, tree = None):
+        super(SymbolNode, self).__init__(tree)
+        self.type = 'symbol'
+        self.identifier = identifier
+
+    def add(self):
+        parent_node = self.tree.get_scoped_node()
+        if parent_node.type == 'value':
+            parent_node.add_child(self)
+        else:
+            # raise error
+            pass
+
+    def render(self, symbol_table):
+        return symbol_table[self.identifier]
+"""
+
 
 #### Store the priority (Order) of operations ####
 or_op_priority = 1

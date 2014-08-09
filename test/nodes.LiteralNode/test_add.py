@@ -12,3 +12,6 @@ def test_base():
     assert t.scope[-1] == vn
     assert ln not in t.scope
     assert vn.children[-1] == ln
+
+def test_add_to_tree_when_parent_is_not_a_value_node()
+    assert False
