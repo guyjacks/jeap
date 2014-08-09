@@ -156,10 +156,8 @@ class ValueNode(Node):
 
         if parent_node == None:
             RootNode(self.tree).add()
-            self.add()
-        else:
-            effective_parent_type = self._get_effective_parent_type()
-            self.__add_to_tree(effective_parent_type)
+        effective_parent_type = self._get_effective_parent_type()
+        self.__add_to_tree(effective_parent_type)
                 
     def __add_to_tree(self, effective_parent_type):
         if effective_parent_type in ('pair', 'array'):

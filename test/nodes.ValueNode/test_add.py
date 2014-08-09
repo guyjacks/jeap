@@ -35,5 +35,28 @@ def test_add_to_array():
     assert len(t.scope) == 3
     assert t.scope[-1] == lvn
 
+def test_add_to_object():
+    t = tree.NodeTree()
+    on = nodes.ObjectNode(t)
+    vn = nodes.ValueNode(t)
+    on.add()
+    vn.add()
+
+    assert len(t.scope) == 3
+    assert t.scope[-1] == vn
+    assert vn not in on.children
+
 def test_add_to_prong():
-    pass
+    t = tree.NodeTree()
+    fn = nodes.ForkNode(t)
+    pn = nodes.ProngNode(t)
+    vn = nodes.ValueNode(t)
+    fn.add()
+    pn.add()
+    vn.add()
+
+    print('pn.root', pn.root)
+
+    assert len(t.scope) == 4
+    assert t.scope[-1] == vn
+    assert vn not in pn.children
