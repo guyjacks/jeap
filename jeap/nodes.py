@@ -64,10 +64,8 @@ class ObjectNode(Node):
 
         if parent_node is None:
             RootNode(self.tree).add()
-            self.add()
-        else:
-            effective_parent_type = self._get_effective_parent_type()
-            self.__add_to_tree(effective_parent_type)
+        effective_parent_type = self._get_effective_parent_type()
+        self.__add_to_tree(effective_parent_type)
 
     def __add_to_tree(self, effective_parent_type):
         if effective_parent_type in ('pair', 'array', 'root'):
@@ -91,10 +89,8 @@ class ArrayNode(Node):
         parent_node = self.tree.get_scoped_node()
         if parent_node is None:
             RootNode(self.tree).add()
-            self.add()
-        else: 
-            effective_parent_type = self._get_effective_parent_type()
-            self.__add_to_tree(effective_parent_type)
+        effective_parent_type = self._get_effective_parent_type()
+        self.__add_to_tree(effective_parent_type)
 
     def __add_to_tree(self, effective_parent_type):
         if effective_parent_type in ('pair', 'array', 'root'):
@@ -181,10 +177,8 @@ class LiteralNode(Node):
         parent = self.tree.get_scoped_node()
         if parent == None:
             RootNode(self.tree).add()
-            self.add()
-        else:
-            effective_parent_type = self._get_effective_parent_type()
-            self.__add_to_tree(effective_parent_type)
+        effective_parent_type = self._get_effective_parent_type()
+        self.__add_to_tree(effective_parent_type)
 
     def __add_to_tree(self, effective_parent_type):
         if effective_parent_type != 'value':
@@ -205,13 +199,10 @@ class ForkNode(Node):
     def add(self):
         parent_node = self.tree.get_scoped_node()
         if parent_node == None:
-            root_node = RootNode(self.tree)
-            root_node.add()
-            self.add()
-        else:
-            parent_node.add_child(self)
-            self.tree.add_to_scope(self)
-            self.root = parent_node
+            RootNode(self.tree).add()
+        parent_node.add_child(self)
+        self.tree.add_to_scope(self)
+        self.root = parent_node
 
 class ProngNode(Node):
     def __init__(self, tree = None):
@@ -231,18 +222,17 @@ class ProngNode(Node):
             pass
 
 class ExpressionNode(Node):
-    def __init__(self, tree = None, expression_tree = None):
+    def __init__(self, node_tree = None, expression_tree = None):
+        super(ExpressionNode, self).__init__(node_tree)
         self.type = 'expression'
-        super(ExpressionNode, self).__init__(tree)
-        self.tree = tree
-        #self.expression_tree = exp_tree
-        self.expression = GroupNode(expression_tree)
+        self.tree = node_tree
+        self.expression = GroupNode(node_tree, expression_tree)
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
         if parent_node == None:
-            root_node = RootNode()
-            root_node.add()
+            parent_node = RootNode(self.tree)
+            parent_node.add()
 
         if parent_node.type == 'fork':
             prong_node = ProngNode(self.tree)
@@ -268,36 +258,44 @@ class ExpressionNode(Node):
             pass
         self.tree.add_to_scope(self)
 
-    def exit_scope(self):
-# add set last_value to right of last operator (if applicable)
-        pass
-
-    def render(context):
-#return self.expression_tree.root.evaluate()
-        return self.expression.evaluate()
-
-    def add_to_expression(self, node):
+    def add_child(self, node):
         self.expression.add_to_expression(node)
 
-"""
-class SymbolNode(Node):
-    def __init__(self, identifier, tree = None):
-        super(SymbolNode, self).__init__(tree)
-        self.type = 'symbol'
-        self.identifier = identifier
+    def exit_scope(self):
+        self.expression.close()
+        # IMPORTANT - I still need to remove this node from the node_tree
+
+    def render(context):
+        #return self.expression_tree.root.evaluate()
+        return self.expression.evaluate()
+
+class GroupNode(Node):
+    def __init__(self, node_tree, expression_tree):
+        self.type = 'group'
+        self.tree = node_tree
+        self.expression = expression_tree
+        self.negate = False
 
     def add(self):
-        parent_node = self.tree.get_scoped_node()
-        if parent_node.type == 'value':
-            parent_node.add_child(self)
+        parent = self.tree.get_scoped_node()
+        if parent.type == 'expression':
+            parent.add_child(self)
         else:
             # raise error
             pass
 
-    def render(self, symbol_table):
-        return symbol_table[self.identifier]
-"""
+    def add_to_expression(self, node):
+        self.expression.add(node)
 
+    def close(self):
+        self.expression.close()
+
+    def evaluate(self):
+        value = self.expression.root.evaulate()
+        if self.negate:
+            return not value
+        else:
+            return value 
 
 #### Store the priority (Order) of operations ####
 or_op_priority = 1
@@ -324,6 +322,22 @@ class ExpressionLiteralNode(Node):
         else:
             return self.value
 
+class ExpressionVariableNode(Node):
+    def __init__(self, identifier, tree):
+        self.type == 'variable'
+        self.tree = tree
+        self.identifier = identifier
+        self.negate = False
+
+    def add(self):
+        parent = self.tree.get_scoped_node()
+        if parent.type != 'expression':
+            en = ExpressionNode(self.tree)
+            en.add()
+            parent = en
+        parent.add_to_expression(self)
+        
+
 class OperatorNode(Node):
     def __init__(self, tree):
         self.type = 'operator'
@@ -342,27 +356,6 @@ class OperatorNode(Node):
 
     def __gt__(self, other):
         return self.priority > other.priority
-
-class GroupNode(Node):
-    def __init__(self, tree):
-        self.tree = tree
-        self.type = 'group'
-        self.negate = False
-
-    def add(self, node):
-        pass
-
-    def add_to_expression(self, node):
-        self.tree.add(node)
-
-    def close(self):
-        self.tree.close()
-
-    def evaluate(self):
-        if self.negate:
-            return not self.tree.root.evaluate()
-        else:
-            return self.tree.root.evaluate()
 
 class AddOperatorNode(OperatorNode):
     def __init__(self, tree = None):

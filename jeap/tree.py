@@ -40,6 +40,7 @@ class ExpressionTree(object):
         self.last_operator = None
         self.last_value = None
         self.negate_next = False
+        # group is True when there is an open expression group in scope
         self.group = False
         self.closed = False
 

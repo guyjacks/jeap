@@ -34,7 +34,17 @@ def test_add_to_object():
     assert False
 
 def test_add_to_empty_tree():
-    assert False
+    t = tree.NodeTree()
+    et = tree.ExpressionTree()
+    en = nodes.ExpressionNode(t, et)
+    en.add()
+
+    # root, value, expression should be in scope
+    assert len(t.scope) == 3
+    assert t.scope[-1] == en
+    value_node = t.scope[-2]
+    assert value_node.children[-1] == en
+
 
 def test_add_to_pair():
     assert False
