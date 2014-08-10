@@ -1,19 +1,18 @@
 import jeap.tree as tree
 import jeap.nodes as nodes
 
-def test_base():
-    t = tree.NodeTree()
+def test_base(node_tree):
     et = tree.ExpressionTree()
-    en = nodes.ExpressionNode(t, et)
+    en = nodes.ExpressionNode(node_tree, et)
     gnet = tree.ExpressionTree()
-    gn = nodes.GroupNode(t, gnet)
+    gn = nodes.GroupNode(node_tree, gnet)
     en.add()
     gn.add()
 
     # make sure tree scope was properly updated
     # root, value, expression
-    assert len(t.scope) == 3
-    assert gn not in t.scope
+    assert len(node_tree.scope) == 3
+    assert gn not in node_tree.scope
     # make sure gn was properly added to en
     assert en.expression.expression.last_value == gn
     assert en.expression.expression.group == True

@@ -60,10 +60,6 @@ class ObjectNode(Node):
         self.type = 'object'
 
     def add(self):
-        parent_node = self.tree.get_scoped_node()
-
-        if parent_node is None:
-            RootNode(self.tree).add()
         effective_parent_type = self._get_effective_parent_type()
         self.__add_to_tree(effective_parent_type)
 
@@ -86,9 +82,6 @@ class ArrayNode(Node):
         self.type = 'array'
 
     def add(self):
-        parent_node = self.tree.get_scoped_node()
-        if parent_node is None:
-            RootNode(self.tree).add()
         effective_parent_type = self._get_effective_parent_type()
         self.__add_to_tree(effective_parent_type)
 
@@ -119,16 +112,12 @@ class PairNode(Node):
             self.tree.close_scoped_node() 
 
             # add pair to the tree
-            parent_node = self.tree.get_scoped_node()
-            if parent_node == None:
-                ObjectNode(self.tree).add()
             effective_parent_type = self._get_effective_parent_type()
             self.__add_to_tree(effective_parent_type)
      
         else:
             # Raise exception
             pass
-   
                
     def __add_to_tree(self, effective_parent_type):
         if effective_parent_type != 'object':
@@ -148,10 +137,6 @@ class ValueNode(Node):
         self.type = 'value'
 
     def add(self):
-        parent_node = self.tree.get_scoped_node()
-
-        if parent_node == None:
-            RootNode(self.tree).add()
         effective_parent_type = self._get_effective_parent_type()
         self.__add_to_tree(effective_parent_type)
                 
@@ -174,9 +159,6 @@ class LiteralNode(Node):
         super(LiteralNode, self).__init__(tree)
      
     def add(self):
-        parent = self.tree.get_scoped_node()
-        if parent == None:
-            RootNode(self.tree).add()
         effective_parent_type = self._get_effective_parent_type()
         self.__add_to_tree(effective_parent_type)
 
@@ -198,8 +180,6 @@ class ForkNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
-        if parent_node == None:
-            RootNode(self.tree).add()
         parent_node.add_child(self)
         self.tree.add_to_scope(self)
         self.root = parent_node
@@ -230,10 +210,6 @@ class ExpressionNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
-        if parent_node == None:
-            parent_node = RootNode(self.tree)
-            parent_node.add()
-
         if parent_node.type == 'fork':
             prong_node = ProngNode(self.tree)
             prong_node.add()

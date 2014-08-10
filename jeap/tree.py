@@ -1,7 +1,10 @@
 class NodeTree(object):
-    def __init__(self):
+    def __init__(self, root = None):
         self.root = None
         self.scope = []
+        if root:
+            root.tree = self
+            root.add()
 
     def add(self, node):
         node.add()
