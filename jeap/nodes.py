@@ -206,7 +206,8 @@ class ExpressionNode(Node):
         super(ExpressionNode, self).__init__(node_tree)
         self.type = 'expression'
         self.tree = node_tree
-        self.expression = GroupNode(node_tree, expression_tree)
+#self.expression = GroupNode(node_tree, expression_tree)
+        self.expression = expression_tree
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
@@ -235,7 +236,8 @@ class ExpressionNode(Node):
         self.tree.add_to_scope(self)
 
     def add_child(self, node):
-        self.expression.add_to_expression(node)
+#self.expression.add_to_expression(node)
+        self.expression.add(node)
 
     def exit_scope(self):
         self.expression.close()
@@ -250,7 +252,6 @@ class GroupNode(Node):
         self.type = 'group'
         self.tree = node_tree
         self.expression = expression_tree
-        self.negate = False
 
     def add(self):
         parent = self.tree.get_scoped_node()
@@ -260,37 +261,22 @@ class GroupNode(Node):
             # raise error
             pass
 
-    def add_to_expression(self, node):
-        self.expression.add(node)
-
-    def close(self):
-        self.expression.close()
-
-    def evaluate(self):
-        value = self.expression.root.evaulate()
-        if self.negate:
-            return not value
-        else:
-            return value 
-
-#### Store the priority (Order) of operations ####
-or_op_priority = 1
-and_op_priority = 2
-# relational operator.are >,<,==, ...
-relational_op_priority = 3
-add_or_subtract_op_priority = 4
-multiply_or_divide_op_priority = 5
-exponent_op_priority = 6
-
 class ExpressionLiteralNode(Node):
-    def __init__(self, value, tree=None):
+    
+    def __init__(self, value, node_tree, expression_tree):
         self.type = 'literal'
-        self.tree = tree
+        self.tree = node_tree
+        self.expression = expression_tree
         self.value = value
         self.negate = False
 
     def add(self):
-        pass
+        parent = self.tree.get_scoped_node()
+        if parent.type == 'expression':
+            parent.add_child(self)
+        else:
+            # raise error
+            pass
 
     def evaluate(self):
         if self.negate:
@@ -313,19 +299,35 @@ class ExpressionVariableNode(Node):
             parent = en
         parent.add_to_expression(self)
         
+##############################
+#### Begin Operator Nodes ####
+##############################
+
+#### Store the priority (Order) of operations ####
+or_op_priority = 1
+and_op_priority = 2
+# relational operator.are >,<,==, ...
+relational_op_priority = 3
+add_or_subtract_op_priority = 4
+multiply_or_divide_op_priority = 5
+exponent_op_priority = 6
 
 class OperatorNode(Node):
-    def __init__(self, tree):
+    def __init__(self, node_tree, expression_tree):
         self.type = 'operator'
-        self.tree = tree
+        self.tree = node_tree
+        self.expression = expression_tree
         self.left = None
         self.right = None
         self.negate = False
 
     def add(self):
-        # add this node to the node tree
-        # sees parent is expression and calls parent's add_to_expression
-        pass
+        parent = self.tree.get_scoped_node()
+        if parent.type == 'expression':
+            parent.add_child(self)
+        else:
+            # raise error
+            pass
 
     def __le__(self, other):
         return self.priority <= other.priority
@@ -334,8 +336,8 @@ class OperatorNode(Node):
         return self.priority > other.priority
 
 class AddOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(AddOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree, expression_tree):
+        super(AddOperatorNode, self).__init__(node_tree, expression_tree)
         self.priority = add_or_subtract_op_priority 
 
     def evaluate(self):
@@ -350,8 +352,8 @@ class SubtractOperatorNode(OperatorNode):
         return operator.sub(self.left.evaluate(), self.right.evaluate())
 
 class MultiplyOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(MultiplyOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree, expression_tree):
+        super(MultiplyOperatorNode, self).__init__(node_tree, expression_tree)
         self.priority = multiply_or_divide_op_priority
 
     def evaluate(self):

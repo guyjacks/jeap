@@ -44,17 +44,19 @@ class ExpressionTree(object):
         self.last_value = None
         self.negate_next = False
         # group is True when there is an open expression group in scope
-        self.group = False
-        self.closed = False
+#self.group = False
+#self.closed = False
+        self.type = 'expression_tree'
+        self.negate = False
+        self.open = True
 
     def add(self, node):
 
-        if self.negate_next:
-            node.negate = True
-            self.negate_next = False
 
-        if self.group:
-            self.last_value.add_to_expression(node)
+#if self.group:
+        if self.last_value != None and self.last_value.type == 'expression_tree' and self.last_value.open:
+#self.last_value.add_to_expression(node)
+            self.last_value.add(node)
         else:
             if node.type == 'group':
                 self.add_group_node(node)
@@ -69,10 +71,16 @@ class ExpressionTree(object):
                 pass
 
     def add_group_node(self, node):
-        self.last_value = node
-        self.group = True
+#       self.last_value = node
+        self.last_value = node.expression
+        self.last_value.negate = self.negate_next
+        self.negate_next = False
+#        self.group = True
 
     def add_operator_node(self, node):
+        node.negate = self.negate_next
+        self.negate_next = False
+
         last_operator = self.last_operator
         last_value = self.last_value
         if last_operator == None:
@@ -93,16 +101,35 @@ class ExpressionTree(object):
         self.last_operator = node
 
     def add_literal_node(self, node):
+        node.negate = self.negate_next
+        self.negate_next = False
         self.last_value = node
 
     def add_negate_node(self, node):
         self.negate_next = True
 
     def close(self):
+        if self.last_value.type == 'expression_group' and self.last_value.open:
+            self.last_value.close()
+        else:
+            self.last_operator.right = self.last_value
+            self.open = False
+
+    """
+    def close(self):
         if self.group:
+        node.negate = self.negate_next
+        self.negate_next = False
             self.last_value.close()
             if self.last_value.tree.closed:
                 self.group = False
         else:
             self.last_operator.right = self.last_value
             self.closed = True
+    """
+    def evaluate(self):
+        value = self.root.evaluate()
+        if self.negate:
+            return not value
+        else:
+            return value

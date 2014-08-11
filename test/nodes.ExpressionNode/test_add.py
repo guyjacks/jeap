@@ -25,12 +25,6 @@ def test_add_to_fork(node_tree):
     assert prong_node.expression == en
     assert en not in prong_node.children
 
-def test_add_to_array(node_tree):
-    assert False
-
-def test_add_to_object(node_tree):
-    assert False
-
 def test_add_to_empty_tree(node_tree):
     et = tree.ExpressionTree()
     en = nodes.ExpressionNode(node_tree, et)
@@ -44,4 +38,10 @@ def test_add_to_empty_tree(node_tree):
 
 
 def test_add_to_pair(node_tree):
+    assert False
+
+def test_add_to_array(node_tree):
+    assert False
+
+def test_add_to_object(node_tree):
     assert False
