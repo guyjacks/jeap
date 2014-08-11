@@ -264,7 +264,7 @@ class GroupNode(Node):
 class ExpressionLiteralNode(Node):
     
     def __init__(self, value, node_tree, expression_tree):
-        self.type = 'literal'
+        self.type = 'expression_literal'
         self.tree = node_tree
         self.expression = expression_tree
         self.value = value

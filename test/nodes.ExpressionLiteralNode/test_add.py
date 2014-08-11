@@ -9,3 +9,7 @@ def test_base(node_tree):
     eln.add()
 
     assert et.last_value == eln
+    assert eln.negate == False
+
+def test_add_after_negate(node_tree):
+    assert False

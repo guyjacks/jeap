@@ -62,7 +62,7 @@ class ExpressionTree(object):
                 self.add_group_node(node)
             elif node.type == 'operator':
                 self.add_operator_node(node)
-            elif node.type == 'literal':
+            elif node.type == 'expression_literal':
                 self.add_literal_node(node)
             elif node.type == 'negate':
                 self.add_negate_node(node)
