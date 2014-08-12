@@ -168,3 +168,6 @@ class ExpressionTree(object):
             return not value
         else:
             return value
+
+    def __str__(self):
+        return str(self.root)
