@@ -1,31 +1,31 @@
 import jeap.tree as tree
 import jeap.nodes as nodes
 
-def test_add_literal():
+def test_add_literal(node_tree):
     et = tree.ExpressionTree()
-    literal_two = nodes.ExpressionLiteralNode(2)
+    literal_two = nodes.ExpressionLiteralNode(2, node_tree)
     et.add(literal_two)
     assert et.root == None
     assert et.last_operator == None
     assert et.last_value == literal_two
 
-def test_add_first_operator():
+def test_add_first_operator(node_tree):
     et = tree.ExpressionTree()
-    literal_two = nodes.ExpressionLiteralNode(2)
+    literal_two = nodes.ExpressionLiteralNode(2, node_tree)
+    add_op = nodes.AddOperatorNode(node_tree)
     et.add(literal_two)
-    add_op = nodes.AddOperatorNode(et)
     et.add(add_op)
     assert et.root == add_op
     assert et.last_operator == add_op
     assert et.last_value == literal_two
     assert et.last_operator.left == literal_two
 
-def test_add_lower_priority_operator():
+def test_add_lower_priority_operator(node_tree):
     # 2 * 2 + 
     et = tree.ExpressionTree()
-    literal_two = nodes.ExpressionLiteralNode(2)
-    mul_op = nodes.MultiplyOperatorNode(et)
-    add_op = nodes.AddOperatorNode(et)
+    literal_two = nodes.ExpressionLiteralNode(2, node_tree)
+    mul_op = nodes.MultiplyOperatorNode(node_tree)
+    add_op = nodes.AddOperatorNode(node_tree)
     et.add(literal_two)
     et.add(mul_op)
     et.add(literal_two)
@@ -38,12 +38,12 @@ def test_add_lower_priority_operator():
     assert mul_op.right == literal_two
     assert et.last_operator == add_op
 
-def test_add_equal_priority_operator():
+def test_add_equal_priority_operator(node_tree):
     # 2 - 2 - 
     et = tree.ExpressionTree()
-    literal_two = nodes.ExpressionLiteralNode(2)
-    first_sub_op = nodes.SubtractOperatorNode()
-    second_sub_op = nodes.SubtractOperatorNode()
+    literal_two = nodes.ExpressionLiteralNode(2, node_tree)
+    first_sub_op = nodes.SubtractOperatorNode(node_tree)
+    second_sub_op = nodes.SubtractOperatorNode(node_tree)
     et.add(literal_two)
     et.add(first_sub_op)
     et.add(literal_two)
@@ -56,12 +56,12 @@ def test_add_equal_priority_operator():
     assert first_sub_op.right == literal_two
     assert et.last_operator == second_sub_op
 
-def test_add_greater_priority_operator():
+def test_add_greater_priority_operator(node_tree):
     # 2 + 2 / 
     et = tree.ExpressionTree()
-    literal_two = nodes.ExpressionLiteralNode(2)
-    add_op = nodes.AddOperatorNode()
-    div_op = nodes.DivideOperatorNode()
+    literal_two = nodes.ExpressionLiteralNode(2, node_tree)
+    add_op = nodes.AddOperatorNode(node_tree)
+    div_op = nodes.DivideOperatorNode(node_tree)
     et.add(literal_two)
     et.add(add_op)
     et.add(literal_two)
@@ -74,60 +74,67 @@ def test_add_greater_priority_operator():
     assert div_op.right == None
     assert et.last_operator == div_op
 
-def test_add_group():
-    # (2 + 2) x 
+def test_add_group(node_tree):
+    assert False
+
+def test_add_operator_to_open_group(node_tree):
+    # (2 + 2) 
     et = tree.ExpressionTree()
-    literal_two = nodes.ExpressionLiteralNode(2)
-    group_node = nodes.GroupNode(tree.ExpressionTree())
-    add_op = nodes.AddOperatorNode()
-    mul_op = nodes.MultiplyOperatorNode()
+    group_tree = tree.ExpressionTree()
+    group_node = nodes.GroupNode(node_tree, group_tree)
+    literal_two = nodes.ExpressionLiteralNode(2, node_tree)
+    add_op = nodes.AddOperatorNode(node_tree)
     et.add(group_node)
     et.add(literal_two)
     et.add(add_op)
     et.add(literal_two)
     et.close()
-    et.add(mul_op)
 
-    assert et.root == mul_op
-    assert et.last_operator == mul_op
-    assert et.last_value == group_node
-    assert mul_op.left == group_node
-    assert mul_op.right == None
-    assert group_node.tree.root == add_op
-    assert group_node.tree.closed == True
-    assert group_node.tree.last_operator == add_op
-    assert group_node.tree.last_value == literal_two
+    assert et.root == None
+    assert et.last_operator == None
+    assert et.last_value == group_tree
+    assert et.open == True
+    assert group_tree.root == add_op
+    assert group_tree.open == False 
+    assert group_tree.last_operator == add_op
+    assert group_tree.last_value == literal_two
     assert add_op.left == literal_two
     assert add_op.right == literal_two
 
-def test_add_negate_node_before_literal():
-    et = tree.ExpressionTree()
-    negate_node = nodes.NegateNode()
-    false_node = nodes.ExpressionLiteralNode(False)
+def test_add_operator_after_closed_group(node_tree):
+    assert False
 
+def test_add_literal_to_open_group(node_tree):
+    assert False
+
+def test_add_literal_after_closed_group(node_tree):
+    assert False
+
+def test_add_negate_node_before_literal(node_tree):
+    et = tree.ExpressionTree()
+    negate_node = nodes.NegateNode(node_tree)
+    false_node = nodes.ExpressionLiteralNode(False, node_tree)
     et.add(negate_node)
     et.add(false_node)
     assert false_node.negate == True
 
-
-def test_add_negate_node_before_group():
+def test_add_negate_node_before_group(node_tree):
     et = tree.ExpressionTree()
-    negate_node = nodes.NegateNode()
-    grp_node = nodes.GroupNode(tree.ExpressionTree())
-
+    negate_node = nodes.NegateNode(node_tree)
+    grp_node = nodes.GroupNode(node_tree, tree.ExpressionTree())
     et.add(negate_node)
     et.add(grp_node)
-    assert grp_node.negate == True
+    assert et.last_value.negate == True
 
-def test_add_negate_node_before_operator():
+def test_add_negate_node_before_operator(node_tree):
     # not False Or 
     et = tree.ExpressionTree()
-    negate_node = nodes.NegateNode()
-    false_node = nodes.ExpressionLiteralNode(False)
-    or_node = nodes.OrOperatorNode()
-
+    negate_node = nodes.NegateNode(node_tree)
+    false_node = nodes.ExpressionLiteralNode(False, node_tree)
+    or_node = nodes.OrOperatorNode(node_tree)
     et.add(negate_node)
     et.add(false_node)
     et.add(or_node)
+
     assert false_node.negate == True
     assert or_node.negate == False

@@ -1,0 +1,1 @@
+When testing an object method that is inherited from the parent, is it necessary to test each object which inherits the method or just one of them?  An example is the add() function for operators.

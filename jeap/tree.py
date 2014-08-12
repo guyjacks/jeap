@@ -62,6 +62,8 @@ class ExpressionTree(object):
                 self.add_group_node(node)
             elif node.type == 'operator':
                 self.add_operator_node(node)
+            elif node.type == 'variable':
+                self.add_variable_node(node):
             elif node.type == 'expression_literal':
                 self.add_literal_node(node)
             elif node.type == 'negate':
@@ -100,6 +102,11 @@ class ExpressionTree(object):
             pass
         self.last_operator = node
 
+    def add_variable_node(self, node):
+        node.negate = self.negate_next
+        self.negate_next = False
+        self.last_value = node
+
     def add_literal_node(self, node):
         node.negate = self.negate_next
         self.negate_next = False
@@ -109,17 +116,26 @@ class ExpressionTree(object):
         self.negate_next = True
 
     def close(self):
-        if self.last_value.type == 'expression_group' and self.last_value.open:
+        if self.last_value.type == 'expression_tree' and self.last_value.open:
             self.last_value.close()
         else:
-            self.last_operator.right = self.last_value
+            if self.last_value:
+                if self.last_operator:
+                    self.last_operator.right = self.last_value
+                else:
+                    # in this case the expression contains only a group
+                    # i.e. (2 + 2)
+                    # or its a single value
+                    # i.e. True
+                    self.root = self.last_value
+            else:
+                # raise error
+                pass
             self.open = False
 
     """
     def close(self):
         if self.group:
-        node.negate = self.negate_next
-        self.negate_next = False
             self.last_value.close()
             if self.last_value.tree.closed:
                 self.group = False

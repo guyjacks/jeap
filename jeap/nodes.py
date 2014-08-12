@@ -263,10 +263,9 @@ class GroupNode(Node):
 
 class ExpressionLiteralNode(Node):
     
-    def __init__(self, value, node_tree, expression_tree):
+    def __init__(self, value, node_tree):
         self.type = 'expression_literal'
         self.tree = node_tree
-        self.expression = expression_tree
         self.value = value
         self.negate = False
 
@@ -313,10 +312,9 @@ multiply_or_divide_op_priority = 5
 exponent_op_priority = 6
 
 class OperatorNode(Node):
-    def __init__(self, node_tree, expression_tree):
+    def __init__(self, node_tree):
         self.type = 'operator'
         self.tree = node_tree
-        self.expression = expression_tree
         self.left = None
         self.right = None
         self.negate = False
@@ -336,68 +334,68 @@ class OperatorNode(Node):
         return self.priority > other.priority
 
 class AddOperatorNode(OperatorNode):
-    def __init__(self, node_tree, expression_tree):
-        super(AddOperatorNode, self).__init__(node_tree, expression_tree)
+    def __init__(self, node_tree):
+        super(AddOperatorNode, self).__init__(node_tree)
         self.priority = add_or_subtract_op_priority 
 
     def evaluate(self):
         return operator.add(self.left.evaluate(), self.right.evaluate())
 
 class SubtractOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(SubtractOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree):
+        super(SubtractOperatorNode, self).__init__(node_tree)
         self.priority = add_or_subtract_op_priority
 
     def evaluate(self):
         return operator.sub(self.left.evaluate(), self.right.evaluate())
 
 class MultiplyOperatorNode(OperatorNode):
-    def __init__(self, node_tree, expression_tree):
-        super(MultiplyOperatorNode, self).__init__(node_tree, expression_tree)
+    def __init__(self, node_tree):
+        super(MultiplyOperatorNode, self).__init__(node_tree)
         self.priority = multiply_or_divide_op_priority
 
     def evaluate(self):
         return operator.mul(self.left.evaluate(), self.right.evaluate())
 
 class DivideOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(DivideOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree):
+        super(DivideOperatorNode, self).__init__(node_tree)
         self.priority = multiply_or_divide_op_priority
 
     def evaluate(self):
         return operator.div(self.left.evaluate(), self.right.evaluate())
 
 class ExponentOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(ExponentOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree):
+        super(ExponentOperatorNode, self).__init__(node_tree)
         self.priority = exponent_op_priority 
 
     def evaluate(self):
         return operator.pow(self.left.evaluate(), self.right.evaluate())
 
 class AndOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(AndOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree):
+        super(AndOperatorNode, self).__init__(node_tree)
         self.priority = and_op_priority 
 
     def evaluate(self):
         return (self.left.evaluate() and self.right.evaluate())
 
 class OrOperatorNode(OperatorNode):
-    def __init__(self, tree = None):
-        super(OrOperatorNode, self).__init__(tree)
+    def __init__(self, node_tree):
+        super(OrOperatorNode, self).__init__(node_tree)
         self.priority = or_op_priority 
 
     def evaluate(self):
         return (self.left.evaluate() or self.right.evaluate())
 
 class NegateNode(Node):
-    def __init__(self, tree = None):
+    def __init__(self, node_tree):
         self.type = 'negate'
 
 class RelationalOperatorNode(OperatorNode):
-    def __init__(self, operation, tree = None):
-        super(RelationalOperatorNode, self).__init__(tree)
+    def __init__(self, operation, node_tree):
+        super(RelationalOperatorNode, self).__init__(node_tree)
         self.priority = relational_op_priority
         self.operation = operation
 
