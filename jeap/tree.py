@@ -41,6 +41,7 @@ class ExpressionTree(object):
     def __init__(self):
         self.root = None
         self.last_operator = None
+        self.operator_scope = []
         self.last_value = None
         self.negate_next = False
         # group is True when there is an open expression group in scope
@@ -91,16 +92,34 @@ class ExpressionTree(object):
             self.root = node
         elif node <= last_operator:
             last_operator.right = last_value
-            node.left = last_operator
-            self.root = node
+#node.left = last_operator
+#self.root = node
+            use_next = False
+            next_found = False
+            for n in reversed(self.operator_scope):
+                print('node in loop', n)
+                if use_next:
+                    print('next node', n)
+                    n.right = node
+                    next_found = True
+                    break
+
+                if node >= n:
+                    print('1st node', n)
+                    node.left = n
+                    use_next = True
+            if next_found == False:
+                node.left = self.operator_scope[0]
+                self.root = node
         elif node > last_operator:
             node.left = last_value
             last_operator.right = node
-            self.root = last_operator
+#self.root = last_operator
         else:
             # raise exception
             pass
         self.last_operator = node
+        self.operator_scope.append(node)
 
     def add_variable_node(self, node):
         node.negate = self.negate_next
