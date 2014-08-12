@@ -392,6 +392,15 @@ class OrOperatorNode(OperatorNode):
 class NegateNode(Node):
     def __init__(self, node_tree):
         self.type = 'negate'
+        self.tree = node_tree
+
+    def add(self):
+        parent = self.tree.get_scoped_node()
+        if parent.type == 'expression':
+            parent.add_child(self)
+        else:
+            # raise error
+            pass
 
 class RelationalOperatorNode(OperatorNode):
     def __init__(self, operation, node_tree):
