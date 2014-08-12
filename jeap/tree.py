@@ -48,6 +48,9 @@ class ExpressionTree(object):
 #self.group = False
 #self.closed = False
         self.type = 'expression_tree'
+        # is_group is used by __str__.
+        # if is_group is true then __str__ will enclose value in '(' & ')'
+        self.is_group = False
         self.negate = False
         self.open = True
 
@@ -77,6 +80,7 @@ class ExpressionTree(object):
 #       self.last_value = node
         self.last_value = node.expression
         self.last_value.negate = self.negate_next
+        self.last_value.is_group = True
         self.negate_next = False
 #        self.group = True
 
@@ -167,4 +171,11 @@ class ExpressionTree(object):
             return value
 
     def __str__(self):
-        return str(self.root)
+        value = str(self.root)
+        if self.is_group:
+            value = '(' + value + ')'
+
+        if self.negate:
+            value = 'not ' + value
+
+        return value

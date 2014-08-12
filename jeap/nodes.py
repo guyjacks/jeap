@@ -284,7 +284,10 @@ class ExpressionLiteralNode(Node):
             return self.value
 
     def __str__(self):
-        return str(self.value)
+        if self.negate:
+            return 'not ' + str(self.value)
+        else: 
+            return str(self.value)
 
 class ExpressionVariableNode(Node):
     def __init__(self, identifier, node_tree):
@@ -302,7 +305,11 @@ class ExpressionVariableNode(Node):
             pass
 
     def __str__(self):
-        return self.identifier
+        value = self.identifier
+        if self.negate:
+            return 'not ' + self.identifier
+        else:
+            return self.identifier
         
 class NegateNode(Node):
     def __init__(self, node_tree):
