@@ -63,7 +63,7 @@ class ExpressionTree(object):
             elif node.type == 'operator':
                 self.add_operator_node(node)
             elif node.type == 'variable':
-                self.add_variable_node(node):
+                self.add_variable_node(node)
             elif node.type == 'expression_literal':
                 self.add_literal_node(node)
             elif node.type == 'negate':

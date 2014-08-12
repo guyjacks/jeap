@@ -284,19 +284,19 @@ class ExpressionLiteralNode(Node):
             return self.value
 
 class ExpressionVariableNode(Node):
-    def __init__(self, identifier, tree):
-        self.type == 'variable'
-        self.tree = tree
+    def __init__(self, identifier, node_tree):
+        self.type = 'variable'
+        self.tree = node_tree
         self.identifier = identifier
         self.negate = False
 
     def add(self):
         parent = self.tree.get_scoped_node()
-        if parent.type != 'expression':
-            en = ExpressionNode(self.tree)
-            en.add()
-            parent = en
-        parent.add_to_expression(self)
+        if parent.type == 'expression':
+            parent.add_child(self)
+        else:
+            # raise error
+            pass
         
 ##############################
 #### Begin Operator Nodes ####

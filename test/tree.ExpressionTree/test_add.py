@@ -9,6 +9,9 @@ def test_add_literal(node_tree):
     assert et.last_operator == None
     assert et.last_value == literal_two
 
+def test_add_variable(node_tree):
+    assert False
+
 def test_add_first_operator(node_tree):
     et = tree.ExpressionTree()
     literal_two = nodes.ExpressionLiteralNode(2, node_tree)
