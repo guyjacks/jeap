@@ -1,9 +1,9 @@
 import jeap.nodes as nodes
 
-def test_base():
-    true_node = nodes.ExpressionLiteralNode(True)
-    false_node = nodes.ExpressionLiteralNode(False)
-    or_node = nodes.OrOperatorNode()
+def test_base(node_tree):
+    true_node = nodes.ExpressionLiteralNode(True, node_tree)
+    false_node = nodes.ExpressionLiteralNode(False, node_tree)
+    or_node = nodes.OrOperatorNode(node_tree)
 
     or_node.left = true_node
     or_node.right = false_node

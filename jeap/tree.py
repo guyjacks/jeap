@@ -97,15 +97,12 @@ class ExpressionTree(object):
             use_next = False
             next_found = False
             for n in reversed(self.operator_scope):
-                print('node in loop', n)
                 if use_next:
-                    print('next node', n)
                     n.right = node
                     next_found = True
                     break
 
                 if node >= n:
-                    print('1st node', n)
                     node.left = n
                     use_next = True
             if next_found == False:

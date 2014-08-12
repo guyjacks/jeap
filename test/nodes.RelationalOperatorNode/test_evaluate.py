@@ -1,10 +1,10 @@
 import jeap.tree as tree
 import jeap.nodes as nodes
 
-def test_less_than():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    lt = nodes.RelationalOperatorNode('<')
+def test_less_than(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    lt = nodes.RelationalOperatorNode('<', node_tree)
 
     lt.left = two
     lt.right = four
@@ -14,13 +14,10 @@ def test_less_than():
     lt.right = two
     assert lt.evaluate() == False
 
-    lt.negate = True
-    assert lt.evaluate() == True
-
-def test_less_than_or_equal():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    lte = nodes.RelationalOperatorNode('<=')
+def test_less_than_or_equal(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    lte = nodes.RelationalOperatorNode('<=', node_tree)
 
     lte.left = two
     lte.right = four
@@ -30,18 +27,14 @@ def test_less_than_or_equal():
     lte.right = two
     assert lte.evaluate() == False
 
-    lte.negate = True
-    assert lte.evaluate() == True
-    
-    lte.negate = False
     lte.left = four
     lte.right = four
     assert lte.evaluate() == True
 
-def test_greater_than():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    gt = nodes.RelationalOperatorNode('>')
+def test_greater_than(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    gt = nodes.RelationalOperatorNode('>', node_tree)
 
     gt.left = two
     gt.right = four
@@ -51,13 +44,10 @@ def test_greater_than():
     gt.right = two
     assert gt.evaluate() == True
 
-    gt.negate = True
-    assert gt.evaluate() == False
-
-def test_greater_than_or_equal():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    gte = nodes.RelationalOperatorNode('>=')
+def test_greater_than_or_equal(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    gte = nodes.RelationalOperatorNode('>=', node_tree)
 
     gte.left = two
     gte.right = four
@@ -67,18 +57,14 @@ def test_greater_than_or_equal():
     gte.right = two
     assert gte.evaluate() == True
 
-    gte.negate = True
-    assert gte.evaluate() == False
-    
-    gte.negate = False
     gte.left = four
     gte.right = four
     assert gte.evaluate() == True
 
-def test_equals():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    eq = nodes.RelationalOperatorNode('==')
+def test_equals(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    eq = nodes.RelationalOperatorNode('==', node_tree)
 
     eq.left = two
     eq.right = four
@@ -87,14 +73,11 @@ def test_equals():
     eq.left = two
     eq.right = two
     assert eq.evaluate() == True
-    
-    eq.negate = True
-    assert eq.evaluate() == False
 
-def test_not_equal():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    neq = nodes.RelationalOperatorNode('!=')
+def test_not_equal(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    neq = nodes.RelationalOperatorNode('!=', node_tree)
 
     neq.left = two
     neq.right = four
@@ -104,14 +87,11 @@ def test_not_equal():
     neq.right = two
     assert neq.evaluate() == False
 
-    neq.negate = True
-    assert neq.evaluate() == True
-
-def test_in():
-    two = nodes.ExpressionLiteralNode(2)
-    four = nodes.ExpressionLiteralNode(4)
-    list_node = nodes.ExpressionLiteralNode([1, 2, 3])
-    in_op = nodes.RelationalOperatorNode('in')
+def test_in(node_tree):
+    two = nodes.ExpressionLiteralNode(2, node_tree)
+    four = nodes.ExpressionLiteralNode(4, node_tree)
+    list_node = nodes.ExpressionLiteralNode(node_tree, [1, 2, 3])
+    in_op = nodes.RelationalOperatorNode('in', node_tree)
 
     in_op.left = two
     in_op.right = list_node
@@ -119,6 +99,3 @@ def test_in():
 
     in_op.left = four
     assert in_op.evaluate() == False
-
-    in_op.negate = True
-    assert in_op.evaluate() == True
