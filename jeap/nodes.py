@@ -291,8 +291,8 @@ class ExpressionLiteralNode(Node):
 
 class ExpressionVariableNode(Node):
     def __init__(self, identifier, node_tree):
+        super(ExpressionVariableNode, self).__init__(node_tree)
         self.type = 'variable'
-        self.tree = node_tree
         self.identifier = identifier
         self.negate = False
 
@@ -315,10 +315,19 @@ class ExpressionVariableNode(Node):
             return self.identifier
 
 class VariableAccessorNode(Node):
-    def __init__(self, key, type):
+    def __init__(self, key, accessor_type, node_tree):
+        self.type = 'accessor'
         self.key = key
-        self.type = type
-        
+        self.accessor_type = accessor_type
+
+    def add(self):
+        parent = node_tree.get_scoped_node()
+        if parent.type == 'variable':
+            parent.add_child(self)
+        else:
+            # error
+            pass
+         
 class NegateNode(Node):
     def __init__(self, node_tree):
         self.type = 'negate'

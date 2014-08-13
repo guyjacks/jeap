@@ -10,7 +10,26 @@ def test_add_literal(node_tree):
     assert et.last_value == literal_two
 
 def test_add_variable(node_tree):
-    assert False
+    et = tree.ExpressionTree()
+    evn = nodes.ExpressionVariableNode('x', node_tree)
+    print('evn', evn, evn.identifier, evn.type)
+    et.add(evn)
+    et.close()
+    assert et.last_value == evn
+    assert et.last_operator == None
+
+def test_add_variable_accessor(node_tree):
+    et = tree.ExpressionTree()
+    evn = nodes.ExpressionVariableNode('x', node_tree)
+    y_van = nodes.VariableAccessorNode('y', 'attribute', node_tree)
+    z_van = nodes.VariableAccessorNode('z', 'member', node_tree)
+    et.add(evn)
+    et.add(y_van)
+    et.add(z_van)
+    et.close()
+
+    assert evn.children[0] == y_van
+    assert evn.children[1] == z_van
 
 def test_add_first_operator(node_tree):
     et = tree.ExpressionTree()

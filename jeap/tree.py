@@ -56,7 +56,6 @@ class ExpressionTree(object):
 
     def add(self, node):
 
-
 #if self.group:
         if self.last_value != None and self.last_value.type == 'expression_tree' and self.last_value.open:
 #self.last_value.add_to_expression(node)
@@ -68,6 +67,8 @@ class ExpressionTree(object):
                 self.add_operator_node(node)
             elif node.type == 'variable':
                 self.add_variable_node(node)
+            elif node.type == 'accessor':
+                self.add_variable_accessor_node(node)
             elif node.type == 'expression_literal':
                 self.add_literal_node(node)
             elif node.type == 'negate':
@@ -123,9 +124,13 @@ class ExpressionTree(object):
         self.operator_scope.append(node)
 
     def add_variable_node(self, node):
+        print('var', node.type, node.identifier)
         node.negate = self.negate_next
         self.negate_next = False
         self.last_value = node
+
+    def add_variable_accessor_node(self, node):
+        self.last_value.add_child(node)
 
     def add_literal_node(self, node):
         node.negate = self.negate_next
@@ -136,10 +141,10 @@ class ExpressionTree(object):
         self.negate_next = True
 
     def close(self):
-        if self.last_value.type == 'expression_tree' and self.last_value.open:
-            self.last_value.close()
-        else:
-            if self.last_value:
+        if self.last_value:
+            if self.last_value.type == 'expression_tree' and self.last_value.open:
+                self.last_value.close()
+            else:
                 if self.last_operator:
                     self.last_operator.right = self.last_value
                 else:
@@ -148,10 +153,10 @@ class ExpressionTree(object):
                     # or its a single value
                     # i.e. True
                     self.root = self.last_value
-            else:
-                # raise error
-                pass
-            self.open = False
+                self.open = False
+        else:
+            # error - tree must have a value to call close()
+            pass
 
     """
     def close(self):
