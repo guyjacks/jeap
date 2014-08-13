@@ -304,12 +304,20 @@ class ExpressionVariableNode(Node):
             # raise error
             pass
 
+    def evaluate(self, context):
+        pass
+
     def __str__(self):
         value = self.identifier
         if self.negate:
             return 'not ' + self.identifier
         else:
             return self.identifier
+
+class VariableAccessorNode(Node):
+    def __init__(self, key, type):
+        self.key = key
+        self.type = type
         
 class NegateNode(Node):
     def __init__(self, node_tree):

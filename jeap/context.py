@@ -1,15 +1,26 @@
 class Context(object):
     def __init__(self, **kwargs):
-        self.symbols = {}
-        for k, v in **kwargs:
-            self.set(k, v)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
-    def set(self, name, value):
-        self.symbols['name'] = value
-
-    def get(self, name):
-        if name in self.symbols:
-            return self.symbols[name]
-        else:
-            # raise error
+    def get(self, identifier, *args):
+        scope = None
+        try:
+            scope = getattr(self, identifier)
+            for accessor in args:
+                if accessor.type == 'attribute':
+                    try:
+                        scope = getattr(scope, accessor.key)
+                    except AttributeError:
+                        raise
+                elif accessor.type == 'member':
+                    try:
+                        scope = scope[accessor.key]
+                    except KeyError:
+                        raise
+        except AttributeError:
             pass
+        except KeyError:
+            pass
+
+        return scope
