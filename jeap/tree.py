@@ -44,21 +44,13 @@ class ExpressionTree(object):
         self.operator_scope = []
         self.last_value = None
         self.negate_next = False
-        # group is True when there is an open expression group in scope
-#self.group = False
-#self.closed = False
         self.type = 'expression_tree'
-        # is_group is used by __str__.
-        # if is_group is true then __str__ will enclose value in '(' & ')'
         self.is_group = False
         self.negate = False
         self.open = True
 
     def add(self, node):
-
-#if self.group:
         if self.last_value != None and self.last_value.type == 'expression_tree' and self.last_value.open:
-#self.last_value.add_to_expression(node)
             self.last_value.add(node)
         else:
             if node.type == 'group':
@@ -78,12 +70,10 @@ class ExpressionTree(object):
                 pass
 
     def add_group_node(self, node):
-#       self.last_value = node
         self.last_value = node.expression
         self.last_value.negate = self.negate_next
         self.last_value.is_group = True
         self.negate_next = False
-#        self.group = True
 
     def add_operator_node(self, node):
         node.negate = self.negate_next
@@ -97,8 +87,6 @@ class ExpressionTree(object):
             self.root = node
         elif node <= last_operator:
             last_operator.right = last_value
-#node.left = last_operator
-#self.root = node
             use_next = False
             next_found = False
             for n in reversed(self.operator_scope):
@@ -116,7 +104,6 @@ class ExpressionTree(object):
         elif node > last_operator:
             node.left = last_value
             last_operator.right = node
-#self.root = last_operator
         else:
             # raise exception
             pass
@@ -158,16 +145,6 @@ class ExpressionTree(object):
             # error - tree must have a value to call close()
             pass
 
-    """
-    def close(self):
-        if self.group:
-            self.last_value.close()
-            if self.last_value.tree.closed:
-                self.group = False
-        else:
-            self.last_operator.right = self.last_value
-            self.closed = True
-    """
     def evaluate(self):
         value = self.root.evaluate()
         if self.negate:
