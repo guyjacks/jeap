@@ -316,13 +316,14 @@ class ExpressionVariableNode(Node):
 
 class VariableAccessorNode(Node):
     def __init__(self, key, accessor_type, node_tree):
+        super(VariableAccessorNode, self).__init__(node_tree)
         self.type = 'accessor'
         self.key = key
         self.accessor_type = accessor_type
 
     def add(self):
-        parent = node_tree.get_scoped_node()
-        if parent.type == 'variable':
+        parent = self.tree.get_scoped_node()
+        if parent.type == 'expression':
             parent.add_child(self)
         else:
             # error

@@ -8,12 +8,12 @@ class Context(object):
         try:
             scope = getattr(self, identifier)
             for accessor in args:
-                if accessor.type == 'attribute':
+                if accessor.accessor_type == 'attribute':
                     try:
                         scope = getattr(scope, accessor.key)
                     except AttributeError:
                         raise
-                elif accessor.type == 'member':
+                elif accessor.accessor_type == 'member':
                     try:
                         scope = scope[accessor.key]
                     except KeyError:
