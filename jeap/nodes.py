@@ -309,10 +309,12 @@ class ExpressionVariableNode(Node):
 
     def __str__(self):
         value = self.identifier
+        for child in self.children:
+            value += str(child)
         if self.negate:
-            return 'not ' + self.identifier
+            return 'not ' + value
         else:
-            return self.identifier
+            return value
 
 class VariableAccessorNode(Node):
     def __init__(self, key, accessor_type, node_tree):
@@ -328,6 +330,12 @@ class VariableAccessorNode(Node):
         else:
             # error
             pass
+
+    def __str__(self):
+        if self.accessor_type == 'attribute':
+            return '.' + self.key
+        else:
+            return '[' + self.key + ']'
          
 class NegateNode(Node):
     def __init__(self, node_tree):
