@@ -305,7 +305,7 @@ class ExpressionVariableNode(Node):
             pass
 
     def evaluate(self, context):
-        pass
+        return context.get(self.identifier, *self.children)
 
     def __str__(self):
         value = self.identifier

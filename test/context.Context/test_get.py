@@ -1,13 +1,6 @@
 import jeap.context as context
 import jeap.nodes as nodes
-
-class ObjectX(object):
-    def __init__(self):
-        self.y = {'key': ObjectC()}
-
-class ObjectC(object):
-    def __init__(self):
-        self.a = ['a', 'b', 'c']
+import test.test_utils as utils
 
 def test_get_attribute():
     c = context.Context(name = "Guy Jacks")
@@ -23,7 +16,7 @@ def test_get_member(node_tree):
 
 def test_get_mixed(node_tree):
     # x.y['key'].a[1]
-    x = ObjectX()
+    x = utils.ObjectX()
     y = nodes.VariableAccessorNode('y', 'attribute', node_tree)
     y_key = nodes.VariableAccessorNode('key', 'member', node_tree)
     a = nodes.VariableAccessorNode('a', 'attribute', node_tree)
