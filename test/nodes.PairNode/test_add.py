@@ -52,3 +52,15 @@ def test_add_to_prong(node_tree):
     assert prong_node.children[-1].children[-1] == pair_node
     assert len(node_tree.scope) == 5
     assert node_tree.scope[-1] == pair_node
+
+def test_add_to_loop(node_tree):
+    ln = nodes.LoopNode(node_tree)
+    pair_key = nodes.LiteralNode('key', node_tree)
+    pn = nodes.PairNode(node_tree)
+    ln.statement_open = False
+    ln.add()
+    pair_key.add()
+    pn.add()
+
+    # need to implement close for nodes before I finish this test
+    assert False
