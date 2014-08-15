@@ -35,15 +35,20 @@ class Node(object):
         pass
 
     def _get_effective_parent_type(self):
-        # forking requires us to check the root type before adding 
-        # nodes to the prong.  the prong's root type becomes the 
-        # effective type for determining whether or not this node
-        # should be added
         parent = self.tree.get_scoped_node()
+        """
         effective_parent_type = parent.type
         if effective_parent_type == 'prong':
             effective_parent_type = parent.root.type
+        elif effective_parent_type == 'loop':
+            effective_parent_type = parent.root.type
         return effective_parent_type
+        """
+
+        if parent.type in ('prong', 'loop'):
+            return parent.root.type
+        else: 
+            return parent.type
 
 class RootNode(Node):
     def __init__(self, tree = None):
@@ -105,6 +110,7 @@ class PairNode(Node):
 
     def add(self):
         parent_node = self.tree.get_scoped_node()
+        # the key will have already been added to the tree as a value
         if parent_node.type == 'value':
             # set key value
             self.key = parent_node
@@ -167,10 +173,70 @@ class LiteralNode(Node):
             ValueNode(self.tree).add()
         self.tree.get_scoped_node().add_child(self)
 
+############################
 #### Flow Control Nodes ####
-class LoopNode(object):
-    def __init__(self, expression):
+############################
+
+class LoopNode(Node):
+    def __init__(self, tree):
+        super(LoopNode, self).__init__(tree)
+        self.type = 'loop'
+        self.root = None
+        self.statement_open = True
+        # for [key, ]value in iterable if filter
+        self.key_identifier = None
+        self.value_identifier = None
+        # iterable: object being looped
+        self.iterable = None
+        # add filter functionality in later version
+        # filter: expression node that if False will skip cycle
+        # self.filter = None
+
+    def add(self):
+        parent = self.tree.get_scoped_node()
+        parent.add_child(self)
+        self.tree.add_to_scope(self)
+        self.root = parent
+
+    def add_child(self, node):
+        if self.statement_open:
+            if node.type == 'loop_identifier':
+                if node.purpose == 'value':
+                    self.value_identifier = node
+                else:
+                    self.key_identifier = node 
+            elif node.type == 'expression':
+                if not self.iterable:
+                    self.iterable = node
+                # add filter func in later release
+                """
+                elif not self.filter:
+                    self.filter = node
+                """
+        else:
+            self.children.append(node)
+
+    def close(self):
         pass
+
+    def render(self, context):
+        pass
+
+class LoopIdentifierNode(Node):
+    def __init__(self, identifier, purpose, tree):
+        super(LoopIdentifierNode, self).__init__(tree)
+        self.type = 'loop_identifier'
+        self.identifier = identifier
+        # key or value
+        self.purpose = purpose
+
+    def add(self):
+        parent = self.tree.get_scoped_node()
+        if parent.type == 'loop':
+            parent.add_child(self)
+        else:
+            # error
+            pass
 
 class ForkNode(Node):
     def __init__(self, tree = None):
@@ -217,7 +283,8 @@ class ExpressionNode(Node):
             prong_node.expression = self
             self.tree.add_to_scope(self)
         elif parent_node.type == 'loop':
-            pass
+            parent_node.add_child(self)
+            self.tree.add_to_scope(self)
         else:
             # {{ expr }}
             effective_parent_type = self._get_effective_parent_type()

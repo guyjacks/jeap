@@ -36,7 +36,6 @@ def test_add_to_empty_tree(node_tree):
     value_node = node_tree.scope[-2]
     assert value_node.children[-1] == en
 
-
 def test_add_to_pair(node_tree):
     assert False
 
@@ -45,3 +44,23 @@ def test_add_to_array(node_tree):
 
 def test_add_to_object(node_tree):
     assert False
+
+def test_add_to_loop_statement(node_tree):
+    ln = nodes.LoopNode(node_tree)
+    en = nodes.ExpressionNode(node_tree, tree.ExpressionTree())
+    ln.add()
+    en.add()
+    assert len(node_tree.scope) == 3
+    assert node_tree.scope[-1] == en
+    assert ln.iterable == en
+
+def test_add_to_loop_body(node_tree):
+    ln = nodes.LoopNode(node_tree)
+    en = nodes.ExpressionNode(node_tree, tree.ExpressionTree())
+    ln.statement_open = False
+    ln.add()
+    en.add()
+    assert len(node_tree.scope) == 3
+    assert node_tree.scope[-1] == en
+    assert ln.iterable == None
+    assert ln.children[-1] == en

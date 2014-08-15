@@ -11,3 +11,6 @@ def test_base(node_tree):
 
     assert et.last_value == vn
     assert vn not in node_tree.scope
+
+def test_add_to_array(node_tree):
+    assert False
