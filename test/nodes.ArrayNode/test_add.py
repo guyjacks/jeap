@@ -12,10 +12,10 @@ def test_add_to_empty_tree(node_tree):
     assert node_tree.root.children[0] == array_node
 
 def test_add_to_pair():
-    assert True == False
+    assert False
 
 def test_add_to_array():
-    assert True == False
+    assert False
 
 def test_add_to_prong(node_tree):
     fork_node = nodes.ForkNode(node_tree)
@@ -30,6 +30,14 @@ def test_add_to_prong(node_tree):
     assert prong_node.children[-1] == array_node
     assert array_node not in node_tree.root.children
 
-def test_add_to_prong_when_prong_root_is_object():
-    # an array cannot be added to an object
-    assert True == False
+def test_add_to_loop(node_tree):
+    ln = nodes.LoopNode(node_tree)
+    an = nodes.ArrayNode(node_tree)
+    ln.statement_open = False
+    ln.add()
+    an.add()
+    
+    assert len(node_tree.scope) == 3
+    assert node_tree.scope[-1] == an
+    assert an not in node_tree.root.children
+    assert ln.children[-1] == an
